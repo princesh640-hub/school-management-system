@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo run build",
     "build:web": "pnpm --filter @school/shared-types --filter @school/validation --filter @school/api-client --filter @school/web build",
+    "build:api": "pnpm --filter @school/shared-types build && pnpm --filter @school/validation build && pnpm --filter @school/api prisma:generate",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
