@@ -1,0 +1,55 @@
+# ==============================================================================
+# Multi-stage Dockerfile for NestJS + Fastify API
+# ==============================================================================
+
+# Stage 1: Build & Dependencies
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Enable Corepack and pnpm
+RUN corepack enable && corepack prepare pnpm@10.5.2 --activate
+
+# Copy root workspace and package manifests
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY packages/shared-types ./packages/shared-types
+COPY packages/validation ./packages/validation
+COPY packages/api-client ./packages/api-client
+COPY apps/api ./apps/api
+
+# Install dependencies and build
+RUN pnpm install --frozen-lockfile || pnpm install
+RUN pnpm --filter @school/shared-types build
+RUN pnpm --filter @school/validation build
+RUN pnpm --filter @school/api prisma:generate
+RUN pnpm --filter @school/api build
+
+# Stage 2: Production Runner
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Security: non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nestjs
+
+# Enable pnpm for runtime package execution
+RUN corepack enable && corepack prepare pnpm@10.5.2 --activate
+
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
+
+USER nestjs
+
+EXPOSE 4000
+ENV API_PORT=4000
+ENV API_HOST=0.0.0.0
+
+CMD ["node", "apps/api/dist/main.js"]

@@ -1,0 +1,215 @@
+{
+  "results": [
+    {
+      "name": "PHASE 1",
+      "script": "scripts/verify-phase1.cjs",
+      "executed": 68,
+      "passed": 68,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 2",
+      "script": "scripts/verify-phase2.cjs",
+      "executed": 209,
+      "passed": 209,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 3",
+      "script": "scripts/verify-phase3.cjs",
+      "executed": 81,
+      "passed": 81,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4A",
+      "script": "scripts/verify-phase4a.cjs",
+      "executed": 67,
+      "passed": 67,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4B",
+      "script": "scripts/verify-phase4b.cjs",
+      "executed": 85,
+      "passed": 85,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4C",
+      "script": "scripts/verify-phase4c.cjs",
+      "executed": 109,
+      "passed": 109,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4D",
+      "script": "scripts/verify-phase4d.cjs",
+      "executed": 132,
+      "passed": 132,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4E",
+      "script": "scripts/verify-phase4e.cjs",
+      "executed": 122,
+      "passed": 122,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4F",
+      "script": "scripts/verify-phase4f.cjs",
+      "executed": 133,
+      "passed": 133,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4G",
+      "script": "scripts/verify-phase4g.cjs",
+      "executed": 126,
+      "passed": 126,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4H",
+      "script": "scripts/verify-phase4h.cjs",
+      "executed": 155,
+      "passed": 155,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4I",
+      "script": "scripts/verify-phase4i.cjs",
+      "executed": 75,
+      "passed": 75,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4J",
+      "script": "scripts/verify-phase4j.cjs",
+      "executed": 348,
+      "passed": 348,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4K",
+      "script": "scripts/verify-phase4k.cjs",
+      "executed": 399,
+      "passed": 399,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4L",
+      "script": "scripts/verify-phase4l.cjs",
+      "executed": 274,
+      "passed": 274,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4M",
+      "script": "scripts/verify-phase4m.cjs",
+      "executed": 259,
+      "passed": 259,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4N",
+      "script": "scripts/verify-phase4n.cjs",
+      "executed": 141,
+      "passed": 141,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4O",
+      "script": "scripts/verify-phase4o.cjs",
+      "executed": 164,
+      "passed": 164,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4P",
+      "script": "scripts/verify-phase4p.cjs",
+      "executed": 152,
+      "passed": 152,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4Q",
+      "script": "scripts/verify-phase4q.cjs",
+      "executed": 117,
+      "passed": 117,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4R",
+      "script": "scripts/verify-phase4r.cjs",
+      "executed": 141,
+      "passed": 141,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4S",
+      "script": "scripts/verify-phase4s.cjs",
+      "executed": 138,
+      "passed": 138,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    {
+      "name": "PHASE 4T",
+      "script": "scripts/verify-phase4t.cjs",
+      "executed": 60,
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0,
+      "exitCode": 0
+    }
+  ],
+  "totalExec": 3555,
+  "totalPass": 3555,
+  "totalFail": 0,
+  "totalSkip": 0
+}

@@ -1,0 +1,50 @@
+{
+  "Login Auth": {
+    "iterations": 50,
+    "avgMs": "0.25",
+    "p50Ms": "0.01",
+    "p95Ms": "0.07"
+  },
+  "Dashboard KPIs": {
+    "iterations": 50,
+    "avgMs": "0.19",
+    "p50Ms": "0.04",
+    "p95Ms": "0.19"
+  },
+  "Student Search": {
+    "iterations": 50,
+    "avgMs": "0.06",
+    "p50Ms": "0.04",
+    "p95Ms": "0.11"
+  },
+  "Student Profile": {
+    "iterations": 50,
+    "avgMs": "0.01",
+    "p50Ms": "0.00",
+    "p95Ms": "0.02"
+  },
+  "Attendance Roster": {
+    "iterations": 50,
+    "avgMs": "0.02",
+    "p50Ms": "0.01",
+    "p95Ms": "0.03"
+  },
+  "Results & GPA": {
+    "iterations": 50,
+    "avgMs": "0.00",
+    "p50Ms": "0.00",
+    "p95Ms": "0.00"
+  },
+  "Fees Ledger": {
+    "iterations": 50,
+    "avgMs": "0.01",
+    "p50Ms": "0.00",
+    "p95Ms": "0.01"
+  },
+  "Reports Query": {
+    "iterations": 50,
+    "avgMs": "0.15",
+    "p50Ms": "0.10",
+    "p95Ms": "0.53"
+  }
+}

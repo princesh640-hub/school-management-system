@@ -1,0 +1,22 @@
+{
+  "name": "@school/validation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared validation schemas and sanitization for School Management System",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@school/shared-types": "workspace:*",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.2"
+  }
+}

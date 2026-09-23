@@ -1,0 +1,271 @@
+{
+  "smokeResults": {
+    "PRE_FLIGHT": [
+      {
+        "name": "Production Database Config Present",
+        "passed": true,
+        "details": "PostgreSQL 18 URL schema"
+      },
+      {
+        "name": "Production Redis Config Present",
+        "passed": true,
+        "details": "Redis 7.4 cluster"
+      },
+      {
+        "name": "Object Storage Config Present",
+        "passed": true,
+        "details": "MinIO/S3 S3 API"
+      },
+      {
+        "name": "JWT Security Secrets Config Present",
+        "passed": true,
+        "details": "Dual JWT Strategy"
+      },
+      {
+        "name": "Production Domain Config Present",
+        "passed": true,
+        "details": "school.local"
+      }
+    ],
+    "HTTPS_EDGE": [
+      {
+        "name": "HTTP to HTTPS 301 Redirect",
+        "passed": true,
+        "details": "Port 80 redirect"
+      },
+      {
+        "name": "Modern TLS Protocols (1.2 & 1.3)",
+        "passed": true,
+        "details": "TLSv1.2 TLSv1.3"
+      },
+      {
+        "name": "HSTS Security Header",
+        "passed": true,
+        "details": "HSTS preload"
+      },
+      {
+        "name": "X-Frame-Options SAMEORIGIN Header",
+        "passed": true,
+        "details": "Clickjacking defense"
+      },
+      {
+        "name": "X-Content-Type-Options nosniff",
+        "passed": true,
+        "details": "MIME sniffing defense"
+      },
+      {
+        "name": "Server Tokens Disabled (Version Suppression)",
+        "passed": true,
+        "details": "Server banner hidden"
+      },
+      {
+        "name": "API Rate Limiting Zone",
+        "passed": true,
+        "details": "30r/s burst=50"
+      },
+      {
+        "name": "Auth Rate Limiting Zone (Brute-Force Guard)",
+        "passed": true,
+        "details": "5r/s burst=10"
+      }
+    ],
+    "HEALTH": [
+      {
+        "name": "Liveness Probe (GET /api/v1/health/live)",
+        "passed": true,
+        "details": "HTTP 200 process alive"
+      },
+      {
+        "name": "Readiness Probe (GET /api/v1/health/ready)",
+        "passed": true,
+        "details": "HTTP 200 DB/Redis check with 503 fallback"
+      }
+    ],
+    "WEB_APP": [
+      {
+        "name": "CSS Global Styles & Variables",
+        "passed": true,
+        "details": "Tailwind & Theme tokens"
+      },
+      {
+        "name": "Print CSS Layout Styles (@media print)",
+        "passed": true,
+        "details": "Print media rules"
+      },
+      {
+        "name": "Responsive Dashboard Layout",
+        "passed": true,
+        "details": "Multi-breakpoint grid"
+      },
+      {
+        "name": "Sidebar Navigation Portal Links",
+        "passed": true,
+        "details": "All role portals bound"
+      }
+    ],
+    "AUTH": [
+      {
+        "name": "Argon2id Production Hashing Package",
+        "passed": true,
+        "details": "argon2 v0.41.1"
+      },
+      {
+        "name": "Argon2id Verify on Login",
+        "passed": true,
+        "details": "Constant-time verification"
+      },
+      {
+        "name": "Argon2id Hash on Password Change",
+        "passed": true,
+        "details": "OWASP parameters"
+      },
+      {
+        "name": "Dual JWT Strategy (Access 15m / Refresh 7d)",
+        "passed": true,
+        "details": "JWT access + refresh"
+      },
+      {
+        "name": "Account Status Lockout (ACTIVE check)",
+        "passed": true,
+        "details": "Deactivated account rejection"
+      }
+    ],
+    "AUTHORIZATION": [
+      {
+        "name": "JwtAuthGuard Enforced Globally",
+        "passed": true,
+        "details": "Protected route enforcement"
+      },
+      {
+        "name": "RolesGuard Enforced on Endpoints",
+        "passed": true,
+        "details": "Role and permission gating"
+      },
+      {
+        "name": "Parent-Child Access Isolation (BOLA Defense)",
+        "passed": true,
+        "details": "Unauthorized child access blocked"
+      },
+      {
+        "name": "Student Self-Scope Boundary (IDOR Defense)",
+        "passed": true,
+        "details": "Peer student query blocked"
+      },
+      {
+        "name": "Teacher Section/Subject Boundary",
+        "passed": true,
+        "details": "Unassigned class mutation blocked"
+      }
+    ],
+    "DATABASE": [
+      {
+        "name": "PostgreSQL 18 Target Schema",
+        "passed": true,
+        "details": "PostgreSQL native dialect"
+      },
+      {
+        "name": "Multi-Campus Scoping (campusId index)",
+        "passed": true,
+        "details": "Tenant isolation keys"
+      },
+      {
+        "name": "Foreign Key Referential Cascades",
+        "passed": true,
+        "details": "Referential integrity"
+      },
+      {
+        "name": "Sequential Accounting Numbering (INV/RCP)",
+        "passed": true,
+        "details": "Contiguous audit numbering"
+      }
+    ],
+    "REDIS_WORKERS": [
+      {
+        "name": "BullMQ Queue Engine Initialized",
+        "passed": true,
+        "details": "13 distinct domain queues"
+      },
+      {
+        "name": "Exponential Backoff Retry Strategy",
+        "passed": true,
+        "details": "Resilient worker retry"
+      },
+      {
+        "name": "Outbound Integration Outbox Ledger",
+        "passed": true,
+        "details": "Transactional outbox"
+      }
+    ],
+    "DOCUMENTS_CERTS": [
+      {
+        "name": "Time-Limited Presigned Download URLs",
+        "passed": true,
+        "details": "Short-lived download token"
+      },
+      {
+        "name": "Cryptographic Verification Reference (Anti-Tamper)",
+        "passed": true,
+        "details": "Entropy-backed non-sequential token"
+      },
+      {
+        "name": "Public QR Verification Link Generator",
+        "passed": true,
+        "details": "Public QR code validator"
+      }
+    ],
+    "FINANCE_PAYMENTS": [
+      {
+        "name": "HMAC-SHA256 Inbound Webhook Verification",
+        "passed": true,
+        "details": "Constant-time signature verification"
+      },
+      {
+        "name": "Webhook Event Idempotency Deduplication",
+        "passed": true,
+        "details": "Replay attack prevention"
+      },
+      {
+        "name": "High-Precision Decimal Balances",
+        "passed": true,
+        "details": "Exact accounting precision"
+      }
+    ],
+    "ERROR_AUDIT": [
+      {
+        "name": "Stack Trace & SQL Suppression in Production",
+        "passed": true,
+        "details": "Zero stack/SQL leakage"
+      },
+      {
+        "name": "Distributed Correlation ID (x-correlation-id)",
+        "passed": true,
+        "details": "End-to-end tracing header"
+      },
+      {
+        "name": "Recursive Credential Scrubbing in Audit Logs",
+        "passed": true,
+        "details": "Passwords & keys redacted"
+      }
+    ],
+    "PLATFORM_PARITY": [
+      {
+        "name": "Desktop / Mobile Teacher Portal Parity",
+        "passed": true,
+        "details": "Synchronized teacher endpoints"
+      },
+      {
+        "name": "Desktop / Mobile Reports Parity",
+        "passed": true,
+        "details": "Synchronized reports endpoints"
+      },
+      {
+        "name": "Desktop / Mobile Integrations Parity",
+        "passed": true,
+        "details": "Synchronized integrations endpoints"
+      }
+    ]
+  },
+  "totalTests": 48,
+  "passedTests": 48,
+  "failedTests": 0
+}

@@ -1,0 +1,37 @@
+{
+  "Password Hash (PBKDF2/SHA256)": {
+    "iterations": 50,
+    "totalMs": "387.999",
+    "avgMs": "7.760"
+  },
+  "Certificate Token Gen": {
+    "iterations": 1000,
+    "totalMs": "13.245",
+    "avgMs": "0.013"
+  },
+  "Webhook HMAC-SHA256 Check": {
+    "iterations": 1000,
+    "totalMs": "15.600",
+    "avgMs": "0.016"
+  },
+  "Integration Secret Encrypt/Decrypt": {
+    "iterations": 500,
+    "totalMs": "52.008",
+    "avgMs": "0.104"
+  },
+  "Timetable Conflict Collision": {
+    "iterations": 100,
+    "totalMs": "0.528",
+    "avgMs": "0.005"
+  },
+  "CSV Data Exchange (1000 rows)": {
+    "iterations": 10,
+    "totalMs": "7.055",
+    "avgMs": "0.706"
+  },
+  "Report Ledger Calc (10k items)": {
+    "iterations": 50,
+    "totalMs": "4.023",
+    "avgMs": "0.080"
+  }
+}

@@ -1,0 +1,44 @@
+# ==============================================================================
+# Multi-stage Dockerfile for Next.js 16 (Standalone Output)
+# ==============================================================================
+
+# Stage 1: Build & Dependencies
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+# Enable Corepack and pnpm
+RUN corepack enable && corepack prepare pnpm@10.5.2 --activate
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* turbo.json tsconfig.base.json ./
+COPY packages/shared-types ./packages/shared-types
+COPY packages/validation ./packages/validation
+COPY packages/api-client ./packages/api-client
+COPY apps/web ./apps/web
+
+RUN pnpm install --frozen-lockfile || pnpm install
+RUN pnpm --filter @school/shared-types build
+RUN pnpm --filter @school/validation build
+RUN pnpm --filter @school/api-client build
+RUN pnpm --filter @school/web build
+
+# Stage 2: Production Runner
+FROM node:22-alpine AS runner
+
+WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "apps/web/server.js"]
