@@ -11,12 +11,14 @@ export class AuditService {
     campusId?: string | null;
     userId?: string | null;
     action: string;
-    module: string;
+    module?: string;
     resourceId?: string | null;
+    entity?: string | null;
     oldValues?: any;
     newValues?: any;
     ipAddress?: string | null;
     userAgent?: string | null;
+    [key: string]: any;
   }) {
     try {
       return await this.prisma.auditLog.create({
@@ -25,10 +27,10 @@ export class AuditService {
           campusId: params.campusId,
           userId: params.userId,
           action: params.action,
-          module: params.module,
-          resourceId: params.resourceId,
-          oldValues: params.oldValues ? JSON.parse(JSON.stringify(params.oldValues)) : null,
-          newValues: params.newValues ? JSON.parse(JSON.stringify(params.newValues)) : null,
+          module: params.module || params.entity || 'SYSTEM',
+          resourceId: params.resourceId || params.entityId,
+          oldValues: (params.oldValues || params.oldValue) ? JSON.parse(JSON.stringify(params.oldValues || params.oldValue)) : null,
+          newValues: (params.newValues || params.newValue) ? JSON.parse(JSON.stringify(params.newValues || params.newValue)) : null,
           ipAddress: params.ipAddress,
           userAgent: params.userAgent,
         },
