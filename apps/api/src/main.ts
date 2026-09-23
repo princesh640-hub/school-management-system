@@ -31,9 +31,23 @@ async function bootstrap() {
   });
 
   // Enable CORS
-  const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',');
+  const configuredOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:3000'];
+
   app.enableCors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        configuredOrigins.includes('*') ||
+        configuredOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -98,7 +112,7 @@ async function bootstrap() {
     },
   });
 
-  const port = parseInt(process.env.API_PORT || '4000', 10);
+  const port = parseInt(process.env.PORT || process.env.API_PORT || '4000', 10);
   const host = process.env.API_HOST || '0.0.0.0';
 
   await app.listen(port, host);
