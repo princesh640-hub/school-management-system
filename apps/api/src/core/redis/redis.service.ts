@@ -21,7 +21,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       password: password || undefined,
       db,
       lazyConnect: true,
-      maxRetriesPerRequest: 2,
+      maxRetriesPerRequest: 1,
+      retryStrategy: () => null,
+    });
+
+    this.client.on('error', (err) => {
+      this.logger.warn(`Redis connection inactive (optional cache): ${err.message}`);
     });
 
     this.client.connect().then(() => {
