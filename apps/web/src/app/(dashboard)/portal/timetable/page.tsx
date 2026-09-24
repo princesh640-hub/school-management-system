@@ -158,8 +158,9 @@ export default function TimetablePage() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        const raw = await res.json();
+        const data = Array.isArray(raw) ? raw : (Array.isArray(raw?.data) ? raw.data : (Array.isArray(raw?.items) ? raw.items : []));
+        if (data.length > 0) {
           setSlots(
             data.map((e: any) => ({
               id: e.id,
@@ -379,7 +380,8 @@ export default function TimetablePage() {
     }
   };
 
-  const filteredSlots = slots.filter((s) => s.dayOfWeek === selectedDay);
+  const safeSlots = Array.isArray(slots) ? slots : [];
+  const filteredSlots = safeSlots.filter((s) => s.dayOfWeek === selectedDay);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

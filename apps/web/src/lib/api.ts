@@ -46,3 +46,22 @@ export const apiClient = new SchoolApiClient({
     }
   },
 });
+
+/**
+ * Safely extracts an array from any API response payload, whether raw array, wrapped { data: [...] },
+ * { items: [...] }, { success: true, data: [...] }, or undefined/null.
+ */
+export function extractArray<T = any>(payload: any): T[] {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.records)) return payload.records;
+  if (payload.data && typeof payload.data === 'object') {
+    if (Array.isArray(payload.data.items)) return payload.data.items;
+    if (Array.isArray(payload.data.data)) return payload.data.data;
+    if (Array.isArray(payload.data.records)) return payload.data.records;
+  }
+  return [];
+}
+

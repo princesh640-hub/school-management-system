@@ -145,6 +145,8 @@ export default function CommunicationCommandCenterPage() {
     }
   };
 
+  const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
   const fetchAnnouncements = async () => {
     const token = getAuthToken();
     if (!token) return;
@@ -157,7 +159,7 @@ export default function CommunicationCommandCenterPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setAnnouncements(data || []);
+        setAnnouncements(parseArr(data));
       }
     } catch {}
   };
@@ -173,7 +175,7 @@ export default function CommunicationCommandCenterPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setCampaigns(data || []);
+        setCampaigns(parseArr(data));
       }
     } catch {}
   };
@@ -187,7 +189,7 @@ export default function CommunicationCommandCenterPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTemplates(data || []);
+        setTemplates(parseArr(data));
       }
     } catch {}
   };
@@ -201,7 +203,7 @@ export default function CommunicationCommandCenterPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setAudiences(data || []);
+        setAudiences(parseArr(data));
       }
     } catch {}
   };
@@ -219,7 +221,7 @@ export default function CommunicationCommandCenterPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setDeliveries(data.items || []);
+        setDeliveries(parseArr(data));
       }
     } catch {}
   };

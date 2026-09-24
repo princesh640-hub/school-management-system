@@ -120,11 +120,13 @@ export default function HRPage() {
         fetch(`${API_URL}/hr/distribution`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (empRes.ok) {
-        setEmployees(await empRes.json());
+        setEmployees(parseArr(await empRes.json()));
       }
       if (contractRes && contractRes.ok) {
-        setExpiringContracts(await contractRes.json());
+        setExpiringContracts(parseArr(await contractRes.json()));
       }
       if (analyticsRes && analyticsRes.ok) {
         setAnalytics(await analyticsRes.json());
@@ -330,15 +332,16 @@ export default function HRPage() {
     }
   };
 
-  const departments = Array.from(new Set(employees.map((e) => e.department?.name).filter(Boolean))) as string[];
+  const safeEmployees = Array.isArray(employees) ? employees : [];
+  const departments = Array.from(new Set(safeEmployees.map((e) => e.department?.name).filter(Boolean))) as string[];
   const filteredEmployees = selectedDept === 'ALL'
-    ? employees
-    : employees.filter((e) => e.department?.name === selectedDept);
+    ? safeEmployees
+    : safeEmployees.filter((e) => e.department?.name === selectedDept);
 
-  const totalStaff = analytics?.headcount?.total || employees.length;
-  const activeStaff = analytics?.headcount?.active || employees.filter((e) => e.lifecycleStatus === 'ACTIVE' || !e.lifecycleStatus).length;
-  const probationStaff = analytics?.headcount?.onProbation || employees.filter((e) => e.lifecycleStatus === 'ON_PROBATION').length;
-  const onLeaveStaff = analytics?.headcount?.onLeave || employees.filter((e) => e.lifecycleStatus === 'ON_LEAVE').length;
+  const totalStaff = analytics?.headcount?.total || safeEmployees.length;
+  const activeStaff = analytics?.headcount?.active || safeEmployees.filter((e) => e.lifecycleStatus === 'ACTIVE' || !e.lifecycleStatus).length;
+  const probationStaff = analytics?.headcount?.onProbation || safeEmployees.filter((e) => e.lifecycleStatus === 'ON_PROBATION').length;
+  const onLeaveStaff = analytics?.headcount?.onLeave || safeEmployees.filter((e) => e.lifecycleStatus === 'ON_LEAVE').length;
 
   const directoryColumns: Column<Employee>[] = [
     {

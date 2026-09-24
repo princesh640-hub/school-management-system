@@ -93,8 +93,14 @@ export default function AttendancePage() {
       );
       if (res.ok) {
         const data = await res.json();
-        setIsLocked(Boolean(data.isLocked));
-        const list = Array.isArray(data) ? data : (data.roster || []);
+        setIsLocked(Boolean(data.isLocked || data.data?.isLocked));
+        const list = Array.isArray(data)
+          ? data
+          : (Array.isArray(data.roster)
+            ? data.roster
+            : (Array.isArray(data.data?.roster)
+              ? data.data.roster
+              : (Array.isArray(data.data) ? data.data : [])));
         setRoster(
           list.map((item: any) => ({
             studentId: item.studentId,
@@ -271,11 +277,12 @@ export default function AttendancePage() {
   };
 
   // Metrics
-  const presentCount = roster.filter((r) => r.status === 'PRESENT').length;
-  const absentCount = roster.filter((r) => r.status === 'ABSENT').length;
-  const lateCount = roster.filter((r) => r.status === 'LATE').length;
-  const excusedCount = roster.filter((r) => r.status === 'EXCUSED' || r.status === 'ON_LEAVE').length;
-  const attendancePercent = roster.length > 0 ? Math.round(((presentCount + lateCount) / roster.length) * 100) : 0;
+  const safeRoster = Array.isArray(roster) ? roster : [];
+  const presentCount = safeRoster.filter((r) => r.status === 'PRESENT').length;
+  const absentCount = safeRoster.filter((r) => r.status === 'ABSENT').length;
+  const lateCount = safeRoster.filter((r) => r.status === 'LATE').length;
+  const excusedCount = safeRoster.filter((r) => r.status === 'EXCUSED' || r.status === 'ON_LEAVE').length;
+  const attendancePercent = safeRoster.length > 0 ? Math.round(((presentCount + lateCount) / safeRoster.length) * 100) : 0;
 
   return (
     <div>

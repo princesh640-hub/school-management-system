@@ -117,18 +117,22 @@ export default function StudentPortalPage() {
     const token = getAuthToken();
     if (!token) return;
 
+    const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+    const parseObj = (json: any) => json?.data || json;
+
     try {
       if (tab === 'academics') {
         const [acadRes, subRes] = await Promise.all([
           fetch(`${API_URL}/student/academics`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/subjects`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        if (acadRes.ok) setAcademics(await acadRes.json());
-        if (subRes.ok) setSubjects(await subRes.json());
+        if (acadRes.ok) setAcademics(parseObj(await acadRes.json()));
+        if (subRes.ok) setSubjects(parseArr(await subRes.json()));
       } else if (tab === 'timetable') {
         const res = await fetch(`${API_URL}/student/timetable`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
-          const data: IStudentTimetable = await res.json();
+          const raw = await res.json();
+          const data: IStudentTimetable = parseObj(raw);
           setTimetable(data);
           const daysOfWeek = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
           const today = daysOfWeek[new Date().getDay()];
@@ -136,48 +140,48 @@ export default function StudentPortalPage() {
         }
       } else if (tab === 'attendance') {
         const res = await fetch(`${API_URL}/student/attendance`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setAttendance(await res.json());
+        if (res.ok) setAttendance(parseObj(await res.json()));
       } else if (tab === 'exams') {
         const [exRes, resRes, rcRes] = await Promise.all([
           fetch(`${API_URL}/student/exams`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/results`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/report-cards`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        if (exRes.ok) setExams(await exRes.json());
-        if (resRes.ok) setResults(await resRes.json());
-        if (rcRes.ok) setReportCards(await rcRes.json());
+        if (exRes.ok) setExams(parseArr(await exRes.json()));
+        if (resRes.ok) setResults(parseArr(await resRes.json()));
+        if (rcRes.ok) setReportCards(parseArr(await rcRes.json()));
       } else if (tab === 'history') {
         const res = await fetch(`${API_URL}/student/history`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setHistory(await res.json());
+        if (res.ok) setHistory(parseArr(await res.json()));
       } else if (tab === 'fees') {
         const res = await fetch(`${API_URL}/student/fees`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setFees(await res.json());
+        if (res.ok) setFees(parseObj(await res.json()));
       } else if (tab === 'services') {
         const [libRes, transRes, hostRes] = await Promise.all([
           fetch(`${API_URL}/student/library`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/transport`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/hostel`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        if (libRes.ok) setLibrary(await libRes.json());
-        if (transRes.ok) setTransport(await transRes.json());
-        if (hostRes.ok) setHostel(await hostRes.json());
+        if (libRes.ok) setLibrary(parseObj(await libRes.json()));
+        if (transRes.ok) setTransport(parseObj(await transRes.json()));
+        if (hostRes.ok) setHostel(parseObj(await hostRes.json()));
       } else if (tab === 'notices') {
         const [noticesRes, notifRes] = await Promise.all([
           fetch(`${API_URL}/student/notices`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/student/notifications`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        if (noticesRes.ok) setNotices(await noticesRes.json());
+        if (noticesRes.ok) setNotices(parseArr(await noticesRes.json()));
         if (notifRes.ok) {
           const data = await notifRes.json();
-          setNotifications(data.notifications || []);
-          setUnreadNotificationsCount(data.unreadCount || 0);
+          setNotifications(parseArr(data.notifications || data));
+          setUnreadNotificationsCount(data.unreadCount || data.data?.unreadCount || 0);
         }
       } else if (tab === 'documents') {
         const res = await fetch(`${API_URL}/student/documents`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setDocuments(await res.json());
+        if (res.ok) setDocuments(parseArr(await res.json()));
       } else if (tab === 'settings') {
         const res = await fetch(`${API_URL}/student/preferences`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setPreferences(await res.json());
+        if (res.ok) setPreferences(parseObj(await res.json()));
       }
     } catch {
       // Fallback

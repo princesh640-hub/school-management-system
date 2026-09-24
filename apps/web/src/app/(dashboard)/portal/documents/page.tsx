@@ -93,10 +93,16 @@ export default function DocumentsPage() {
       if (ovRes.ok) setOverview(await ovRes.json());
       if (docRes.ok) {
         const d = await docRes.json();
-        setDocuments(d.documents || []);
+        setDocuments(Array.isArray(d) ? d : (d?.documents || d?.data || []));
       }
-      if (catRes.ok) setCategories(await catRes.json());
-      if (typeRes.ok) setTypes(await typeRes.json());
+      if (catRes.ok) {
+        const c = await catRes.json();
+        setCategories(Array.isArray(c) ? c : (c?.categories || c?.data || []));
+      }
+      if (typeRes.ok) {
+        const t = await typeRes.json();
+        setTypes(Array.isArray(t) ? t : (t?.types || t?.data || []));
+      }
     } catch {
       // Fallback
     } finally {
@@ -214,7 +220,11 @@ export default function DocumentsPage() {
     }
   };
 
-  const filteredDocs = documents.filter((doc) => {
+  const safeDocs = Array.isArray(documents) ? documents : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeTypes = Array.isArray(types) ? types : [];
+
+  const filteredDocs = safeDocs.filter((doc) => {
     const matchesSearch =
       !searchQuery ||
       doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -487,8 +497,8 @@ export default function DocumentsPage() {
       {/* Tab Content: Categories & Types */}
       {activeTab === 'categories' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-          {categories.map((cat) => {
-            const catTypes = types.filter((t) => t.categoryId === cat.id);
+          {safeCategories.map((cat) => {
+            const catTypes = safeTypes.filter((t) => t.categoryId === cat.id);
             return (
               <Card key={cat.id}>
                 <div style={{ padding: '20px' }}>
@@ -542,7 +552,7 @@ export default function DocumentsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {documents
+                  {safeDocs
                     .filter((d) => d.expiryDate)
                     .map((d) => (
                       <tr key={d.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
@@ -585,7 +595,7 @@ export default function DocumentsPage() {
                 required
                 options={[
                   { value: '', label: 'Select Category' },
-                  ...categories.map((c) => ({ value: c.id, label: c.name })),
+                  ...safeCategories.map((c) => ({ value: c.id, label: c.name })),
                 ]}
                 value={uploadForm.categoryId}
                 onChange={(e) => setUploadForm({ ...uploadForm, categoryId: e.target.value })}
@@ -597,7 +607,7 @@ export default function DocumentsPage() {
                 required
                 options={[
                   { value: '', label: 'Select Type' },
-                  ...types
+                  ...safeTypes
                     .filter((t) => !uploadForm.categoryId || t.categoryId === uploadForm.categoryId)
                     .map((t) => ({ value: t.id, label: t.name })),
                 ]}

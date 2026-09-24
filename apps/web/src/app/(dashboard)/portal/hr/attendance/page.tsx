@@ -50,7 +50,8 @@ export default function EmployeeAttendancePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setRoster(data.roster || data || []);
+        const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.roster) ? json.roster : []));
+        setRoster(parseArr(data));
       } else {
         // Fallback demonstration roster
         setRoster([
@@ -293,11 +294,12 @@ export default function EmployeeAttendancePage() {
     }
   };
 
-  const presentCount = roster.filter((r) => r.status === 'PRESENT').length;
-  const lateCount = roster.filter((r) => r.status === 'LATE').length;
-  const leaveCount = roster.filter((r) => r.status === 'ON_LEAVE').length;
-  const remoteCount = roster.filter((r) => r.status === 'REMOTE').length;
-  const absentCount = roster.filter((r) => r.status === 'ABSENT').length;
+  const safeRoster = Array.isArray(roster) ? roster : [];
+  const presentCount = safeRoster.filter((r) => r.status === 'PRESENT').length;
+  const lateCount = safeRoster.filter((r) => r.status === 'LATE').length;
+  const leaveCount = safeRoster.filter((r) => r.status === 'ON_LEAVE').length;
+  const remoteCount = safeRoster.filter((r) => r.status === 'REMOTE').length;
+  const absentCount = safeRoster.filter((r) => r.status === 'ABSENT').length;
 
   return (
     <div>

@@ -39,8 +39,9 @@ export default function NotificationsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data.items || []);
-        setUnreadCount(data.unreadCount || 0);
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.items) ? data.items : (Array.isArray(data?.data) ? data.data : []));
+        setNotifications(list);
+        setUnreadCount(data.unreadCount || data.data?.unreadCount || 0);
       }
     } catch {
       // Fallback
@@ -131,7 +132,8 @@ export default function NotificationsPage() {
     }
   };
 
-  const filtered = notifications.filter((n) => {
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const filtered = safeNotifications.filter((n) => {
     if (activeTab === 'unread') return !n.isRead;
     return true;
   });

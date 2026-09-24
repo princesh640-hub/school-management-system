@@ -117,14 +117,16 @@ export default function ProcurementPage() {
         fetch(`${API_URL}/inventory/items`, { credentials: 'omit', headers: getHeaders() }).catch(() => null),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (kpisRes && kpisRes.ok) setKpis(await kpisRes.json());
-      if (supRes && supRes.ok) setSuppliers(await supRes.json());
-      if (reqRes && reqRes.ok) setRequests(await reqRes.json());
-      if (ordRes && ordRes.ok) setOrders(await ordRes.json());
-      if (recRes && recRes.ok) setReceipts(await recRes.json());
-      if (invRes && invRes.ok) setInvoices(await invRes.json());
-      if (storesRes && storesRes.ok) setStores(await storesRes.json());
-      if (itemsRes && itemsRes.ok) setItems(await itemsRes.json());
+      if (supRes && supRes.ok) setSuppliers(parseArr(await supRes.json()));
+      if (reqRes && reqRes.ok) setRequests(parseArr(await reqRes.json()));
+      if (ordRes && ordRes.ok) setOrders(parseArr(await ordRes.json()));
+      if (recRes && recRes.ok) setReceipts(parseArr(await recRes.json()));
+      if (invRes && invRes.ok) setInvoices(parseArr(await invRes.json()));
+      if (storesRes && storesRes.ok) setStores(parseArr(await storesRes.json()));
+      if (itemsRes && itemsRes.ok) setItems(parseArr(await itemsRes.json()));
     } catch (err) {
       console.error('Failed to load procurement data', err);
     } finally {
@@ -413,7 +415,7 @@ export default function ProcurementPage() {
                 Pending Requests
               </div>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--primary-600)', margin: '0.25rem 0' }}>
-                {kpis?.pendingRequestsCount ?? requests.filter((r) => r.status === 'SUBMITTED').length}
+                {kpis?.pendingRequestsCount ?? (Array.isArray(requests) ? requests : []).filter((r) => r.status === 'SUBMITTED').length}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--neutral-500)' }}>
                 Requisitions awaiting approval
@@ -424,7 +426,7 @@ export default function ProcurementPage() {
                 Active Purchase Orders
               </div>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--neutral-900)', margin: '0.25rem 0' }}>
-                {kpis?.activeOrdersCount ?? orders.filter((o) => ['APPROVED', 'ISSUED', 'PARTIALLY_RECEIVED'].includes(o.status)).length}
+                {kpis?.activeOrdersCount ?? (Array.isArray(orders) ? orders : []).filter((o) => ['APPROVED', 'ISSUED', 'PARTIALLY_RECEIVED'].includes(o.status)).length}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--neutral-500)' }}>
                 In production or delivery

@@ -67,10 +67,11 @@ export default function ParentPortalPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const data: IParentChildSummary[] = await res.json();
-        setChildren(data);
-        if (data.length > 0 && !selectedChildId) {
-          setSelectedChildId(data[0].studentId);
+        const raw = await res.json();
+        const list: IParentChildSummary[] = Array.isArray(raw) ? raw : (Array.isArray(raw?.data) ? raw.data : []);
+        setChildren(list);
+        if (list.length > 0 && !selectedChildId) {
+          setSelectedChildId(list[0].studentId);
         }
       }
     } catch {
@@ -83,6 +84,8 @@ export default function ParentPortalPage() {
   useEffect(() => {
     fetchChildrenRoster();
   }, [fetchChildrenRoster]);
+
+  const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
 
   // 2. Fetch Child-Specific Data with Safe State Flushing
   const fetchChildScopedData = useCallback(async (studentId: string) => {
@@ -133,15 +136,15 @@ export default function ParentPortalPage() {
           }),
         ]);
 
-      if (ovRes.ok) setOverview(await ovRes.json());
-      if (profRes.ok) setChildProfile(await profRes.json());
-      if (attRes.ok) setAttendance(await attRes.json());
-      if (timeRes.ok) setTimetable(await timeRes.json());
-      if (resRes.ok) setResults(await resRes.json());
-      if (rcRes.ok) setReportCards(await rcRes.json());
-      if (feeRes.ok) setFees(await feeRes.json());
-      if (trRes.ok) setTransport(await trRes.json());
-      if (hstRes.ok) setHostel(await hstRes.json());
+      if (ovRes.ok) { const d = await ovRes.json(); setOverview(d.data || d); }
+      if (profRes.ok) { const d = await profRes.json(); setChildProfile(d.data || d); }
+      if (attRes.ok) { const d = await attRes.json(); setAttendance(d.data || d); }
+      if (timeRes.ok) { const d = await timeRes.json(); setTimetable(d.data || d); }
+      if (resRes.ok) setResults(parseArr(await resRes.json()));
+      if (rcRes.ok) setReportCards(parseArr(await rcRes.json()));
+      if (feeRes.ok) { const d = await feeRes.json(); setFees(d.data || d); }
+      if (trRes.ok) { const d = await trRes.json(); setTransport(d.data || d); }
+      if (hstRes.ok) { const d = await hstRes.json(); setHostel(d.data || d); }
     } catch {
       // Network error handled gracefully
     }
@@ -162,8 +165,8 @@ export default function ParentPortalPage() {
         }),
       ]);
 
-      if (noticeRes.ok) setNotices(await noticeRes.json());
-      if (profRes.ok) setParentProfile(await profRes.json());
+      if (noticeRes.ok) setNotices(parseArr(await noticeRes.json()));
+      if (profRes.ok) { const d = await profRes.json(); setParentProfile(d.data || d); }
     } catch {}
   }, []);
 

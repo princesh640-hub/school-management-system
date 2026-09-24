@@ -88,7 +88,8 @@ export default function AdmissionsPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setApplications(data.data || []);
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data?.items) ? data.items : []));
+        setApplications(list);
       } else {
         // Mock fallback for offline demonstration
         setApplications([
@@ -370,10 +371,11 @@ export default function AdmissionsPage() {
     },
   ];
 
-  const totalApps = applications.length;
-  const underReviewCount = applications.filter((a) => a.status === 'UNDER_REVIEW' || a.status === 'SUBMITTED').length;
-  const approvedCount = applications.filter((a) => a.status === 'APPROVED').length;
-  const admittedCount = applications.filter((a) => a.status === 'ADMITTED').length;
+  const safeApps = Array.isArray(applications) ? applications : [];
+  const totalApps = safeApps.length;
+  const underReviewCount = safeApps.filter((a) => a.status === 'UNDER_REVIEW' || a.status === 'SUBMITTED').length;
+  const approvedCount = safeApps.filter((a) => a.status === 'APPROVED').length;
+  const admittedCount = safeApps.filter((a) => a.status === 'ADMITTED').length;
 
   return (
     <div>

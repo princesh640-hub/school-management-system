@@ -37,7 +37,8 @@ export default function TeachersPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setTeachers(data || []);
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data?.items) ? data.items : []));
+        setTeachers(list);
       }
     } catch {
       // Fallback
@@ -85,7 +86,8 @@ export default function TeachersPage() {
     }
   };
 
-  const filtered = teachers.filter((t) => {
+  const safeTeachers = Array.isArray(teachers) ? teachers : [];
+  const filtered = safeTeachers.filter((t) => {
     const fullName = `${t.user?.firstName || ''} ${t.user?.lastName || ''}`.toLowerCase();
     const emailStr = (t.user?.email || '').toLowerCase();
     const query = search.toLowerCase();

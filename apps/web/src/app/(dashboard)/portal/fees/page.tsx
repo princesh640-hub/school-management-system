@@ -89,24 +89,27 @@ export default function FeesPage() {
         fetch(`${API_URL}/fees/shifts/current`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (invRes.ok) {
         const invData = await invRes.json();
-        setInvoices(invData.items || []);
+        setInvoices(parseArr(invData));
       }
       if (strRes.ok) {
-        setStructures(await strRes.json());
+        setStructures(parseArr(await strRes.json()));
       }
       if (catRes && catRes.ok) {
-        setCategories(await catRes.json());
+        setCategories(parseArr(await catRes.json()));
       }
       if (schRes && schRes.ok) {
-        setSchedules(await schRes.json());
+        setSchedules(parseArr(await schRes.json()));
       }
       if (discRes && discRes.ok) {
-        setDiscounts(await discRes.json());
+        setDiscounts(parseArr(await discRes.json()));
       }
       if (curShiftRes && curShiftRes.ok) {
-        setCurrentShift(await curShiftRes.json());
+        const curShiftData = await curShiftRes.json();
+        setCurrentShift(curShiftData.data || curShiftData);
       }
     } catch {
       // Fallback

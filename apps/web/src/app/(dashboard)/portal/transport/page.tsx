@@ -153,17 +153,19 @@ export default function TransportPage() {
         fetch(`${API_URL}/transport/schedules/today-summary`, { headers: h }).catch(() => null),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (summaryRes?.ok) setFleetSummary(await summaryRes.json());
-      if (vehicleRes?.ok) setVehicles((await vehicleRes.json()) || []);
-      if (driverRes?.ok) setDrivers((await driverRes.json()) || []);
-      if (attRes?.ok) setAttendants((await attRes.json()) || []);
-      if (routeRes?.ok) setRoutes((await routeRes.json()) || []);
-      if (assignRes?.ok) setAssignments((await assignRes.json()) || []);
-      if (scheduleRes?.ok) setSchedules((await scheduleRes.json()) || []);
-      if (mainRes?.ok) setMaintenances((await mainRes.json()) || []);
-      if (fuelRes?.ok) setFuelRecords((await fuelRes.json()) || []);
-      if (incidentRes?.ok) setIncidents((await incidentRes.json()) || []);
-      if (alertRes?.ok) setExpiryAlerts((await alertRes.json()) || []);
+      if (vehicleRes?.ok) setVehicles(parseArr(await vehicleRes.json()));
+      if (driverRes?.ok) setDrivers(parseArr(await driverRes.json()));
+      if (attRes?.ok) setAttendants(parseArr(await attRes.json()));
+      if (routeRes?.ok) setRoutes(parseArr(await routeRes.json()));
+      if (assignRes?.ok) setAssignments(parseArr(await assignRes.json()));
+      if (scheduleRes?.ok) setSchedules(parseArr(await scheduleRes.json()));
+      if (mainRes?.ok) setMaintenances(parseArr(await mainRes.json()));
+      if (fuelRes?.ok) setFuelRecords(parseArr(await fuelRes.json()));
+      if (incidentRes?.ok) setIncidents(parseArr(await incidentRes.json()));
+      if (alertRes?.ok) setExpiryAlerts(parseArr(await alertRes.json()));
       if (todayRes?.ok) setTodaySummary(await todayRes.json());
     } catch (err) {
       console.error('Transport data fetch error:', err);
@@ -892,13 +894,13 @@ export default function TransportPage() {
             label="Vehicle"
             value={sVehicleId}
             onChange={(e) => setSVehicleId(e.target.value)}
-            options={[{ value: '', label: 'No Vehicle' }, ...vehicles.filter((v: any) => v.status === 'ACTIVE').map((v: any) => ({ value: v.id, label: v.vehicleNumber }))]}
+            options={[{ value: '', label: 'No Vehicle' }, ...(Array.isArray(vehicles) ? vehicles : []).filter((v: any) => v.status === 'ACTIVE').map((v: any) => ({ value: v.id, label: v.vehicleNumber }))]}
           />
           <Select
             label="Driver"
             value={sDriverId}
             onChange={(e) => setSDriverId(e.target.value)}
-            options={[{ value: '', label: 'No Driver' }, ...drivers.filter((d: any) => d.status === 'ACTIVE').map((d: any) => ({ value: d.id, label: d.driverCode }))]}
+            options={[{ value: '', label: 'No Driver' }, ...(Array.isArray(drivers) ? drivers : []).filter((d: any) => d.status === 'ACTIVE').map((d: any) => ({ value: d.id, label: d.driverCode }))]}
           />
           <Select
             label="Trip Type"

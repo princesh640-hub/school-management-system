@@ -19,6 +19,7 @@ import {
 } from '@school/shared-types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState('catalog');
@@ -75,18 +76,19 @@ export default function ReportsPage() {
         ]);
 
         if (catRes.ok) {
-          const cats: IReportCatalogCategory[] = await catRes.json();
+          const raw = await catRes.json();
+          const cats: IReportCatalogCategory[] = parseArr(raw);
           setCatalog(cats);
-          if (cats.length > 0 && cats[0].reports.length > 0) {
+          if (cats.length > 0 && cats[0].reports?.length > 0) {
             setSelectedReport(cats[0].reports[0]);
           }
         }
-        if (cenRes.ok) setCensusReport(await cenRes.json());
-        if (attRes.ok) setAttReport(await attRes.json());
-        if (feeRes.ok) setFeeReport(await feeRes.json());
-        if (savedRes.ok) setSavedReports(await savedRes.json());
-        if (schedRes.ok) setScheduledReports(await schedRes.json());
-        if (logRes.ok) setExecutionLogs(await logRes.json());
+        if (cenRes.ok) { const d = await cenRes.json(); setCensusReport(d.data || d); }
+        if (attRes.ok) { const d = await attRes.json(); setAttReport(d.data || d); }
+        if (feeRes.ok) { const d = await feeRes.json(); setFeeReport(d.data || d); }
+        if (savedRes.ok) setSavedReports(parseArr(await savedRes.json()));
+        if (schedRes.ok) setScheduledReports(parseArr(await schedRes.json()));
+        if (logRes.ok) setExecutionLogs(parseArr(await logRes.json()));
       } catch {
         // Fallback
       } finally {
@@ -238,7 +240,7 @@ export default function ReportsPage() {
         setIsSaveModalOpen(false);
         setSaveForm({ name: '', description: '', isPublic: false });
         const refresh = await fetch(`${API_URL}/reports/saved`, { headers: getHeaders() });
-        if (refresh.ok) setSavedReports(await refresh.json());
+        if (refresh.ok) setSavedReports(parseArr(await refresh.json()));
       } else {
         const err = await res.json();
         setQueueMsg({ type: 'danger', text: err.message || 'Failed to save report' });
@@ -271,7 +273,7 @@ export default function ReportsPage() {
         setIsScheduleModalOpen(false);
         setScheduleForm({ name: '', frequency: 'WEEKLY', format: 'CSV', recipientEmail: '' });
         const refresh = await fetch(`${API_URL}/reports/schedules`, { headers: getHeaders() });
-        if (refresh.ok) setScheduledReports(await refresh.json());
+        if (refresh.ok) setScheduledReports(parseArr(await refresh.json()));
       } else {
         const err = await res.json();
         setQueueMsg({ type: 'danger', text: err.message || 'Failed to register schedule' });

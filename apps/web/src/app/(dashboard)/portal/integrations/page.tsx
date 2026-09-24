@@ -118,10 +118,12 @@ export default function IntegrationsPage() {
         r.ok ? r.json() : null,
       );
 
-      if (catalogRes) setCatalog(catalogRes);
-      if (configsRes) setConfigs(configsRes);
-      if (webhooksRes) setWebhookLogs(webhooksRes);
-      if (logsRes?.items) setAuditLogs(logsRes.items);
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
+      if (catalogRes) setCatalog(parseArr(catalogRes));
+      if (configsRes) setConfigs(parseArr(configsRes));
+      if (webhooksRes) setWebhookLogs(parseArr(webhooksRes));
+      if (logsRes?.items || logsRes?.data) setAuditLogs(parseArr(logsRes));
     } catch {
       // Fallback
     } finally {
@@ -268,7 +270,8 @@ export default function IntegrationsPage() {
 
   const categories = ['ALL', 'Communication', 'Finance', 'Infrastructure', 'Operations', 'Academics', 'Identity'];
 
-  const filteredCatalog = catalog.filter((item) => {
+  const safeCatalog = Array.isArray(catalog) ? catalog : [];
+  const filteredCatalog = safeCatalog.filter((item) => {
     if (categoryFilter === 'ALL') return true;
     return item.category.toLowerCase() === categoryFilter.toLowerCase();
   });

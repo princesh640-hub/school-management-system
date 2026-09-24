@@ -120,16 +120,18 @@ export default function InventoryPage() {
         fetch(`${API_URL}/inventory/reports/valuation`, { credentials: 'omit', headers: getHeaders() }).catch(() => null),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (kpisRes && kpisRes.ok) setDashboardKpis(await kpisRes.json());
-      if (itemsRes && itemsRes.ok) setItems(await itemsRes.json());
-      if (catsRes && catsRes.ok) setCategories(await catsRes.json());
-      if (uomsRes && uomsRes.ok) setUoms(await uomsRes.json());
-      if (storesRes && storesRes.ok) setStores(await storesRes.json());
-      if (balancesRes && balancesRes.ok) setBalances(await balancesRes.json());
-      if (movementsRes && movementsRes.ok) setMovements(await movementsRes.json());
-      if (transfersRes && transfersRes.ok) setTransfers(await transfersRes.json());
-      if (stkRes && stkRes.ok) setStockTakes(await stkRes.json());
-      if (alertsRes && alertsRes.ok) setLowStockAlerts(await alertsRes.json());
+      if (itemsRes && itemsRes.ok) setItems(parseArr(await itemsRes.json()));
+      if (catsRes && catsRes.ok) setCategories(parseArr(await catsRes.json()));
+      if (uomsRes && uomsRes.ok) setUoms(parseArr(await uomsRes.json()));
+      if (storesRes && storesRes.ok) setStores(parseArr(await storesRes.json()));
+      if (balancesRes && balancesRes.ok) setBalances(parseArr(await balancesRes.json()));
+      if (movementsRes && movementsRes.ok) setMovements(parseArr(await movementsRes.json()));
+      if (transfersRes && transfersRes.ok) setTransfers(parseArr(await transfersRes.json()));
+      if (stkRes && stkRes.ok) setStockTakes(parseArr(await stkRes.json()));
+      if (alertsRes && alertsRes.ok) setLowStockAlerts(parseArr(await alertsRes.json()));
       if (valRes && valRes.ok) setValuationSummary(await valRes.json());
     } catch (err: any) {
       console.error('Failed to load inventory data', err);
@@ -406,7 +408,7 @@ export default function InventoryPage() {
                 Active Transfers
               </div>
               <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--warning-600)', margin: '0.25rem 0' }}>
-                {dashboardKpis?.activeTransfersCount ?? transfers.filter((t) => t.status === 'PENDING' || t.status === 'IN_TRANSIT').length}
+                {dashboardKpis?.activeTransfersCount ?? (Array.isArray(transfers) ? transfers : []).filter((t) => t.status === 'PENDING' || t.status === 'IN_TRANSIT').length}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--neutral-500)' }}>
                 Inter-store transfers pending
@@ -970,7 +972,7 @@ export default function InventoryPage() {
               <Select
                 value={transferToStore}
                 onChange={(e) => setTransferToStore(e.target.value)}
-                options={stores.filter((s) => s.id !== transferFromStore).map((s) => ({ value: s.id, label: s.name }))}
+                options={(Array.isArray(stores) ? stores : []).filter((s) => s.id !== transferFromStore).map((s) => ({ value: s.id, label: s.name }))}
                 placeholder="Select destination store..."
                 required
               />

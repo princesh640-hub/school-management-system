@@ -75,15 +75,17 @@ export default function CertificatesPage() {
         fetch(`${API_URL}/printing/jobs`, { headers: getHeaders() }),
       ]);
 
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
       if (certRes.ok) {
         const d = await certRes.json();
-        setCertificates(d.certificates || []);
+        setCertificates(Array.isArray(d) ? d : (d.certificates || d.data || []));
       }
-      if (typeRes.ok) setTypes(await typeRes.json());
-      if (tmplRes.ok) setTemplates(await tmplRes.json());
+      if (typeRes.ok) setTypes(parseArr(await typeRes.json()));
+      if (tmplRes.ok) setTemplates(parseArr(await tmplRes.json()));
       if (jobRes.ok) {
         const j = await jobRes.json();
-        setJobs(j.jobs || []);
+        setJobs(Array.isArray(j) ? j : (j.jobs || j.data || []));
       }
     } catch {
       // Fallback
@@ -182,7 +184,10 @@ export default function CertificatesPage() {
     setFeedback({ type: 'success', text: `Verification link copied: ${url}` });
   };
 
-  const filteredCerts = certificates.filter((c) => {
+  const safeCerts = Array.isArray(certificates) ? certificates : [];
+  const safeTypes = Array.isArray(types) ? types : [];
+
+  const filteredCerts = safeCerts.filter((c) => {
     const matchesSearch =
       !searchQuery ||
       c.certificateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -248,7 +253,7 @@ export default function CertificatesPage() {
               Total Issued
             </span>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#0f172a', marginTop: '6px' }}>
-              {certificates.filter((c) => c.status === 'ISSUED').length}
+              {safeCerts.filter((c) => c.status === 'ISSUED').length}
             </div>
             <span style={{ fontSize: '12px', color: '#16a34a' }}>Cryptographically signed</span>
           </div>
@@ -259,7 +264,7 @@ export default function CertificatesPage() {
               Pending Approval
             </span>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#d97706', marginTop: '6px' }}>
-              {certificates.filter((c) => c.status === 'PENDING_APPROVAL').length}
+              {safeCerts.filter((c) => c.status === 'PENDING_APPROVAL').length}
             </div>
             <span style={{ fontSize: '12px', color: '#d97706' }}>Awaiting administrator</span>
           </div>
@@ -270,7 +275,7 @@ export default function CertificatesPage() {
               Revoked
             </span>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#dc2626', marginTop: '6px' }}>
-              {certificates.filter((c) => c.status === 'REVOKED').length}
+              {safeCerts.filter((c) => c.status === 'REVOKED').length}
             </div>
             <span style={{ fontSize: '12px', color: '#dc2626' }}>Invalidated certificates</span>
           </div>
@@ -281,7 +286,7 @@ export default function CertificatesPage() {
               Configured Types
             </span>
             <div style={{ fontSize: '28px', fontWeight: 700, color: '#0284c7', marginTop: '6px' }}>
-              {types.length || 9}
+              {safeTypes.length || 9}
             </div>
             <span style={{ fontSize: '12px', color: '#0284c7' }}>Standard templates</span>
           </div>
@@ -441,7 +446,7 @@ export default function CertificatesPage() {
       {/* Tab: Certificate Types */}
       {activeTab === 'types' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          {types.map((type) => (
+          {safeTypes.map((type) => (
             <Card key={type.id}>
               <div style={{ padding: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -532,7 +537,7 @@ export default function CertificatesPage() {
               required
               options={[
                 { value: '', label: 'Select Certificate Type' },
-                ...types.map((t) => ({ value: t.id, label: `${t.name} (${t.category})` })),
+                ...safeTypes.map((t) => ({ value: t.id, label: `${t.name} (${t.category})` })),
               ]}
               value={issueForm.certificateTypeId}
               onChange={(e) => setIssueForm({ ...issueForm, certificateTypeId: e.target.value })}

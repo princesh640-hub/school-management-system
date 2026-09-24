@@ -14,6 +14,7 @@ import { DataTable, Column } from '@/components/data-table/DataTable';
 import { TableSkeleton } from '@/components/feedback/LoadingSkeleton';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
 
 // Tab Configuration
 const HOSTEL_TABS = [
@@ -141,21 +142,21 @@ export default function HostelPage() {
 
       if (summaryRes?.ok) setDashboardSummary(await summaryRes.json());
       if (hostelsRes?.ok) {
-        const hData = await hostelsRes.json();
-        setHostels(hData || []);
-        if (hData?.length && !selectedHostelId) {
+        const hData = parseArr(await hostelsRes.json());
+        setHostels(hData);
+        if (hData.length && !selectedHostelId) {
           setSelectedHostelId(hData[0].id);
         }
       }
-      if (buildingsRes?.ok) setBuildings(await buildingsRes.json() || []);
-      if (roomsRes?.ok) setRooms(await roomsRes.json() || []);
-      if (bedsRes?.ok) setBeds(await bedsRes.json() || []);
-      if (allocRes?.ok) setAllocations(await allocRes.json() || []);
-      if (outingsRes?.ok) setOutings(await outingsRes.json() || []);
-      if (visitorsRes?.ok) setVisitors(await visitorsRes.json() || []);
-      if (maintRes?.ok) setMaintenances(await maintRes.json() || []);
-      if (incRes?.ok) setIncidents(await incRes.json() || []);
-      if (wardensRes?.ok) setWardens(await wardensRes.json() || []);
+      if (buildingsRes?.ok) setBuildings(parseArr(await buildingsRes.json()));
+      if (roomsRes?.ok) setRooms(parseArr(await roomsRes.json()));
+      if (bedsRes?.ok) setBeds(parseArr(await bedsRes.json()));
+      if (allocRes?.ok) setAllocations(parseArr(await allocRes.json()));
+      if (outingsRes?.ok) setOutings(parseArr(await outingsRes.json()));
+      if (visitorsRes?.ok) setVisitors(parseArr(await visitorsRes.json()));
+      if (maintRes?.ok) setMaintenances(parseArr(await maintRes.json()));
+      if (incRes?.ok) setIncidents(parseArr(await incRes.json()));
+      if (wardensRes?.ok) setWardens(parseArr(await wardensRes.json()));
     } catch (err) {
       console.error('Hostel data fetch error:', err);
     } finally {
@@ -170,7 +171,7 @@ export default function HostelPage() {
       const res = await fetch(`${API_URL}/hostel/attendance/roster?hostelId=${hostelId}&date=${date}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setAttendanceRoster(await res.json() || []);
+      if (res.ok) setAttendanceRoster(parseArr(await res.json()));
     } catch (e) {
       console.error('Roster error:', e);
     }

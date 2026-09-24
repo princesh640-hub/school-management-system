@@ -36,7 +36,9 @@ export default function GuardiansPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        setGuardians(await res.json());
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : (Array.isArray(data?.items) ? data.items : []));
+        setGuardians(list);
       }
     } catch {
       // Fallback
@@ -84,7 +86,8 @@ export default function GuardiansPage() {
     }
   };
 
-  const filtered = guardians.filter((g) => {
+  const safeGuardians = Array.isArray(guardians) ? guardians : [];
+  const filtered = safeGuardians.filter((g) => {
     const name = `${g.user?.firstName || ''} ${g.user?.lastName || ''}`.toLowerCase();
     const emailStr = (g.user?.email || '').toLowerCase();
     const query = search.toLowerCase();

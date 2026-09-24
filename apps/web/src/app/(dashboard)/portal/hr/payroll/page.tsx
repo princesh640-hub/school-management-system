@@ -89,12 +89,14 @@ export default function PayrollPage() {
         fetch(`${API_URL}/employees`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => null),
       ]);
 
-      if (perRes && perRes.ok) setPeriods(await perRes.json());
-      if (runRes && runRes.ok) setRuns(await runRes.json());
-      if (strRes && strRes.ok) setStructures(await strRes.json());
-      if (loanRes && loanRes.ok) setLoans(await loanRes.json());
-      if (payRes && payRes.ok) setPayslips(await payRes.json());
-      if (empRes && empRes.ok) setEmployees(await empRes.json());
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+
+      if (perRes && perRes.ok) setPeriods(parseArr(await perRes.json()));
+      if (runRes && runRes.ok) setRuns(parseArr(await runRes.json()));
+      if (strRes && strRes.ok) setStructures(parseArr(await strRes.json()));
+      if (loanRes && loanRes.ok) setLoans(parseArr(await loanRes.json()));
+      if (payRes && payRes.ok) setPayslips(parseArr(await payRes.json()));
+      if (empRes && empRes.ok) setEmployees(parseArr(await empRes.json()));
     } catch {
       // Backend unavailable or network error
     } finally {
@@ -434,10 +436,12 @@ export default function PayrollPage() {
   };
 
   // Summary KPI values
-  const activeRunsCount = runs.length;
-  const totalDisbursed = runs.reduce((acc, r) => acc + (Number(r.totalNet) || 0), 0);
-  const activeLoansCount = loans.filter((l) => l.status === 'ACTIVE').length;
-  const activeLoansBalance = loans
+  const safeRuns = Array.isArray(runs) ? runs : [];
+  const safeLoans = Array.isArray(loans) ? loans : [];
+  const activeRunsCount = safeRuns.length;
+  const totalDisbursed = safeRuns.reduce((acc, r) => acc + (Number(r.totalNet) || 0), 0);
+  const activeLoansCount = safeLoans.filter((l) => l.status === 'ACTIVE').length;
+  const activeLoansBalance = safeLoans
     .filter((l) => l.status === 'ACTIVE')
     .reduce((acc, l) => acc + (Number(l.remainingBalance) || 0), 0);
 

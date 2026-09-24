@@ -90,10 +90,14 @@ export default function TeacherPortalPage() {
         fetch(`${API_URL}/teacher/classes`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
-      if (ovRes.ok) setOverview(await ovRes.json());
-      if (profRes.ok) setProfile(await profRes.json());
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+      const parseObj = (json: any) => json?.data || json;
+
+      if (ovRes.ok) setOverview(parseObj(await ovRes.json()));
+      if (profRes.ok) setProfile(parseObj(await profRes.json()));
       if (secRes.ok) {
-        const secs: ITeacherSectionWorkspace[] = await secRes.json();
+        const raw = await secRes.json();
+        const secs: ITeacherSectionWorkspace[] = parseArr(raw);
         setSections(secs);
         if (secs.length > 0) {
           setAttendanceSectionId(secs[0].sectionId);
@@ -116,17 +120,21 @@ export default function TeacherPortalPage() {
     const token = getAuthToken();
     if (!token) return;
 
+    const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+    const parseObj = (json: any) => json?.data || json;
+
     try {
       if (tab === 'students') {
         const url = selectedSectionFilter
           ? `${API_URL}/teacher/students?sectionId=${selectedSectionFilter}`
           : `${API_URL}/teacher/students`;
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setStudents(await res.json());
+        if (res.ok) setStudents(parseArr(await res.json()));
       } else if (tab === 'timetable') {
         const res = await fetch(`${API_URL}/teacher/timetable`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.ok) {
-          const data: ITeacherTimetable = await res.json();
+          const raw = await res.json();
+          const data: ITeacherTimetable = parseObj(raw);
           setTimetable(data);
           const daysOfWeek = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
           const today = daysOfWeek[new Date().getDay()];
@@ -138,19 +146,19 @@ export default function TeacherPortalPage() {
         }
       } else if (tab === 'exams') {
         const res = await fetch(`${API_URL}/teacher/exams`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setExamTasks(await res.json());
+        if (res.ok) setExamTasks(parseArr(await res.json()));
       } else if (tab === 'leave') {
         const res = await fetch(`${API_URL}/teacher/leave`, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.ok) setLeaveSummary(await res.json());
+        if (res.ok) setLeaveSummary(parseObj(await res.json()));
       } else if (tab === 'notices') {
         const [notRes, notifRes] = await Promise.all([
           fetch(`${API_URL}/teacher/notices`, { headers: { Authorization: `Bearer ${token}` } }),
           fetch(`${API_URL}/teacher/notifications`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-        if (notRes.ok) setNotices(await notRes.json());
+        if (notRes.ok) setNotices(parseArr(await notRes.json()));
         if (notifRes.ok) {
           const data = await notifRes.json();
-          setNotifications(data.notifications || []);
+          setNotifications(parseArr(data.notifications || data));
         }
       }
     } catch {
@@ -174,7 +182,8 @@ export default function TeacherPortalPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        setAttendanceRoster(await res.json());
+        const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+        setAttendanceRoster(parseArr(await res.json()));
       }
     } catch {
       setFeedback({ type: 'danger', text: 'Failed to load attendance roster.' });
@@ -260,8 +269,14 @@ export default function TeacherPortalPage() {
         fetch(`${API_URL}/teacher/results/${examScheduleId}`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
-      if (rosterRes.ok) setMarksRoster(await rosterRes.json());
-      if (summaryRes.ok) setResultSummary(await summaryRes.json());
+      if (rosterRes.ok) {
+        const raw = await rosterRes.json();
+        setMarksRoster(raw?.data || raw);
+      }
+      if (summaryRes.ok) {
+        const raw = await summaryRes.json();
+        setResultSummary(raw?.data || raw);
+      }
     } catch {
       setFeedback({ type: 'danger', text: 'Failed to load examination marks roster.' });
     }

@@ -67,12 +67,14 @@ export default function AcademicsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setOverview(data);
+        setOverview(data.data || data);
       }
     } catch {
       // ignore
     }
   };
+
+  const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
 
   const fetchClasses = async () => {
     setIsLoadingClasses(true);
@@ -85,11 +87,12 @@ export default function AcademicsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setClasses(data);
-        if (data.length > 0 && data[0].sections?.length > 0) {
-          const firstSec = data[0].sections[0];
+        const list = parseArr(data);
+        setClasses(list);
+        if (list.length > 0 && list[0].sections?.length > 0) {
+          const firstSec = list[0].sections[0];
           setSelectedSection(firstSec.id);
-          setSelectedSectionName(`${data[0].name} — Section ${firstSec.name}`);
+          setSelectedSectionName(`${list[0].name} — Section ${firstSec.name}`);
           loadRoster(firstSec.id, token);
         }
       }
@@ -112,7 +115,8 @@ export default function AcademicsPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setRoster(data.students || data || []);
+        const list = Array.isArray(data) ? data : (Array.isArray(data.students) ? data.students : parseArr(data));
+        setRoster(list);
       }
     } catch {
       // Ignore
@@ -128,7 +132,7 @@ export default function AcademicsPage() {
       const res = await fetch(`${API_URL}/academics/subjects`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setSubjects(await res.json());
+      if (res.ok) setSubjects(parseArr(await res.json()));
     } catch {}
   };
 
@@ -139,7 +143,7 @@ export default function AcademicsPage() {
       const res = await fetch(`${API_URL}/academics/curricula`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setCurricula(await res.json());
+      if (res.ok) setCurricula(parseArr(await res.json()));
     } catch {}
   };
 
@@ -150,7 +154,7 @@ export default function AcademicsPage() {
       const res = await fetch(`${API_URL}/academics/offerings`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setOfferings(await res.json());
+      if (res.ok) setOfferings(parseArr(await res.json()));
     } catch {}
   };
 
@@ -161,7 +165,7 @@ export default function AcademicsPage() {
       const res = await fetch(`${API_URL}/academics/calendar`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (res.ok) setCalendarEvents(await res.json());
+      if (res.ok) setCalendarEvents(parseArr(await res.json()));
     } catch {}
   };
 

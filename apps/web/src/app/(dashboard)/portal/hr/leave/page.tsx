@@ -72,7 +72,8 @@ export default function LeaveManagementPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setApplications(data.data || data || []);
+        const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : []));
+        setApplications(parseArr(data));
       } else {
         // Mock fallback applications
         setApplications([
@@ -321,9 +322,10 @@ export default function LeaveManagementPage() {
     }
   };
 
+  const safeApps = Array.isArray(applications) ? applications : [];
   const filteredApps = statusFilter === 'ALL'
-    ? applications
-    : applications.filter((a) => a.status === statusFilter);
+    ? safeApps
+    : safeApps.filter((a) => a.status === statusFilter);
 
   return (
     <div>

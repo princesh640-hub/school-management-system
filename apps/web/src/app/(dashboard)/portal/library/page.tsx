@@ -197,34 +197,41 @@ export default function LibraryPage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      const parseArr = (json: any) => Array.isArray(json) ? json : (Array.isArray(json?.data) ? json.data : (Array.isArray(json?.items) ? json.items : null));
+
       const resBooks = await fetch(`${API_URL}/library/books`);
       if (resBooks.ok) {
         const data = await resBooks.json();
-        if (Array.isArray(data)) setBooks(data);
+        const list = parseArr(data);
+        if (list) setBooks(list);
       }
 
       const resLoans = await fetch(`${API_URL}/library/circulation/loans`);
       if (resLoans.ok) {
         const data = await resLoans.json();
-        if (Array.isArray(data)) setActiveLoans(data);
+        const list = parseArr(data);
+        if (list) setActiveLoans(list);
       }
 
       const resMembers = await fetch(`${API_URL}/library/members`);
       if (resMembers.ok) {
         const data = await resMembers.json();
-        if (Array.isArray(data)) setMembers(data);
+        const list = parseArr(data);
+        if (list) setMembers(list);
       }
 
       const resFines = await fetch(`${API_URL}/library/fines`);
       if (resFines.ok) {
         const data = await resFines.json();
-        if (Array.isArray(data)) setFines(data);
+        const list = parseArr(data);
+        if (list) setFines(list);
       }
 
       const resReservations = await fetch(`${API_URL}/library/reservations`);
       if (resReservations.ok) {
         const data = await resReservations.json();
-        if (Array.isArray(data)) setReservations(data);
+        const list = parseArr(data);
+        if (list) setReservations(list);
       }
     } catch {
       // Fallback to initial seed states gracefully
@@ -430,7 +437,8 @@ export default function LibraryPage() {
   };
 
   // Filtered Books
-  const filteredBooks = books.filter((b) => {
+  const safeBooks = Array.isArray(books) ? books : [];
+  const filteredBooks = safeBooks.filter((b) => {
     const matchesSearch =
       b.title.toLowerCase().includes(catalogSearch.toLowerCase()) ||
       (b.isbn13 && b.isbn13.includes(catalogSearch));

@@ -322,10 +322,11 @@ export default function StudentsPage() {
     },
   ];
 
+  const safeStudents = Array.isArray(students) ? students : [];
   const filteredStudents =
     activeTab === 'ALL'
-      ? students
-      : students.filter((s) => s.status === activeTab || s.lifecycleStatus === activeTab);
+      ? safeStudents
+      : safeStudents.filter((s) => s.status === activeTab || s.lifecycleStatus === activeTab);
 
   return (
     <div>
@@ -370,8 +371,8 @@ export default function StudentsPage() {
       <div style={{ marginBottom: 16 }}>
         <Tabs
           tabs={[
-            { id: 'ALL', label: 'All Students', count: students.length },
-            { id: 'ACTIVE', label: 'Active Roster', count: students.filter((s) => s.status === 'ACTIVE').length },
+            { id: 'ALL', label: 'All Students', count: safeStudents.length },
+            { id: 'ACTIVE', label: 'Active Roster', count: safeStudents.filter((s) => s.status === 'ACTIVE').length },
             { id: 'ADMITTED', label: 'Recently Admitted' },
             { id: 'TRANSFERRED', label: 'Transferred' },
             { id: 'WITHDRAWN', label: 'Withdrawn' },
