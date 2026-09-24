@@ -124,11 +124,9 @@ export class ExaminationsService {
       where,
       orderBy: { examDate: 'asc' },
       include: {
-        subject: {
-          include: {
-            class: true,
-          },
-        },
+        subject: true,
+        class: true,
+        section: true,
         academicYear: true,
         examSession: true,
         room: true,
@@ -143,15 +141,13 @@ export class ExaminationsService {
     const schedule = await this.prisma.examSchedule.findUnique({
       where: { id },
       include: {
-        subject: {
+        subject: true,
+        class: {
           include: {
-            class: {
-              include: {
-                sections: true,
-              },
-            },
+            sections: true,
           },
         },
+        section: true,
         academicYear: true,
         examSession: true,
         room: true,

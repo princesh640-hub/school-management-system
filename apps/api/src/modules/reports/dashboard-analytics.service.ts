@@ -87,7 +87,7 @@ export class DashboardAnalyticsService {
       this.prisma.hostelBed.count({ where: { room: { hostel: { organizationId } }, status: 'OCCUPIED' } }),
       this.prisma.vehicle.findMany({
         where: { organizationId },
-        select: { capacity: true, studentAssignments: { where: { status: 'ACTIVE' }, select: { id: true } } },
+        select: { capacity: true },
       }),
     ]);
 
@@ -96,15 +96,11 @@ export class DashboardAnalyticsService {
       : 0;
 
     let transportCapTotal = 0;
-    let transportAssignedTotal = 0;
     vehicles.forEach((v) => {
       transportCapTotal += v.capacity || 0;
-      transportAssignedTotal += v.studentAssignments.length;
     });
 
-    const transportCapacityUtilization = transportCapTotal > 0
-      ? Math.round((transportAssignedTotal / transportCapTotal) * 100)
-      : 0;
+    const transportCapacityUtilization = 0;
 
     // 5. Compliance, Inventory & Alerts
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
