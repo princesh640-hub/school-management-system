@@ -53,12 +53,21 @@ export function DataTable<T extends Record<string, any>>({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const normalizedData: T[] = useMemo(() => {
+    if (Array.isArray(data)) return data;
+    if (data && typeof data === 'object') {
+      if (Array.isArray((data as any).data)) return (data as any).data;
+      if (Array.isArray((data as any).items)) return (data as any).items;
+    }
+    return [];
+  }, [data]);
+
   // Filter
   const filteredData = useMemo(() => {
-    if (!searchTerm.trim()) return data;
+    if (!searchTerm.trim()) return normalizedData;
     const lower = searchTerm.toLowerCase();
 
-    return data.filter((item) => {
+    return normalizedData.filter((item) => {
       if (searchFields && searchFields.length > 0) {
         return searchFields.some((field) => {
           const val = item[field];
@@ -71,7 +80,7 @@ export function DataTable<T extends Record<string, any>>({
         return val !== undefined && val !== null && String(val).toLowerCase().includes(lower);
       });
     });
-  }, [data, searchTerm, searchFields]);
+  }, [normalizedData, searchTerm, searchFields]);
 
   // Sort
   const sortedData = useMemo(() => {

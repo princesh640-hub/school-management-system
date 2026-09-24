@@ -121,40 +121,51 @@ export default function ExaminationsPage() {
       ]);
 
       if (schRes && schRes.ok) {
-        const data = await schRes.json();
-        setSchedules(data);
+        const json = await schRes.json();
+        const data = Array.isArray(json) ? json : json.data || [];
+        setSchedules(Array.isArray(data) ? data : []);
       }
       if (yrRes && yrRes.ok) {
-        const years = await yrRes.json();
-        setAcademicYears(years);
-        if (years.length > 0 && !selectedYear) setSelectedYear(years[0].id);
+        const json = await yrRes.json();
+        const years = Array.isArray(json) ? json : json.data || [];
+        setAcademicYears(Array.isArray(years) ? years : []);
+        if (Array.isArray(years) && years.length > 0 && !selectedYear) setSelectedYear(years[0].id);
       }
       if (clsRes && clsRes.ok) {
-        const classes = await clsRes.json();
+        const json = await clsRes.json();
+        const classes = Array.isArray(json) ? json : json.data || [];
         const allSubs: any[] = [];
-        classes.forEach((c: any) => {
-          c.subjects?.forEach((s: any) => {
-            allSubs.push({ id: s.id, name: `${c.name} — ${s.name}`, classId: c.id });
+        if (Array.isArray(classes)) {
+          classes.forEach((c: any) => {
+            (c.subjects || []).forEach((s: any) => {
+              allSubs.push({ id: s.id, name: `${c.name} — ${s.name}`, classId: c.id });
+            });
           });
-        });
+        }
         setSubjects(allSubs);
         if (allSubs.length > 0 && !selectedSubject) setSelectedSubject(allSubs[0].id);
       }
       if (sessRes && sessRes.ok) {
-        const sList = await sessRes.json();
-        setSessions(sList);
-        if (sList.length > 0 && !selectedSessionId) setSelectedSessionId(sList[0].id);
+        const json = await sessRes.json();
+        const sList = Array.isArray(json) ? json : json.data || [];
+        setSessions(Array.isArray(sList) ? sList : []);
+        if (Array.isArray(sList) && sList.length > 0 && !selectedSessionId) setSelectedSessionId(sList[0].id);
       }
       if (typesRes && typesRes.ok) {
-        const tList = await typesRes.json();
-        setExamTypes(tList);
-        if (tList.length > 0 && !sessionTypeId) setSessionTypeId(tList[0].id);
+        const json = await typesRes.json();
+        const tList = Array.isArray(json) ? json : json.data || [];
+        setExamTypes(Array.isArray(tList) ? tList : []);
+        if (Array.isArray(tList) && tList.length > 0 && !sessionTypeId) setSessionTypeId(tList[0].id);
       }
       if (roomsRes && roomsRes.ok) {
-        setRooms(await roomsRes.json());
+        const json = await roomsRes.json();
+        const rList = Array.isArray(json) ? json : json.data || [];
+        setRooms(Array.isArray(rList) ? rList : []);
       }
       if (scalesRes && scalesRes.ok) {
-        setGradeScales(await scalesRes.json());
+        const json = await scalesRes.json();
+        const scList = Array.isArray(json) ? json : json.data || [];
+        setGradeScales(Array.isArray(scList) ? scList : []);
       }
     } catch {
       // Fallback
@@ -177,21 +188,22 @@ export default function ExaminationsPage() {
     try {
       const res = await fetch(`${API_URL}/examinations/schedules/${schedule.id}/results`, { headers });
       if (res.ok) {
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.data || json;
         setResultsData(data);
 
         // Build interactive marks grid
-        const maxM = Number(schedule.maxMarks) || 100;
-        const grid = (data.results || []).map((r: any) => ({
+        const resultsList = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
+        const grid = resultsList.map((r: any) => ({
           studentId: r.studentId,
           studentName: r.studentName,
           admissionNumber: r.admissionNumber,
-          marksObtained: Number(r.marksObtained),
+          marksObtained: Number(r.marksObtained ?? 0),
           isAbsent: Boolean(r.isAbsent),
           isExempt: Boolean(r.isExempt),
           remarks: r.remarks || '',
-          percentage: r.percentage,
-          grade: r.grade,
+          percentage: r.percentage ?? 0,
+          grade: r.grade || '—',
         }));
         setMarksGrid(grid);
       }
@@ -211,7 +223,8 @@ export default function ExaminationsPage() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (res.ok) {
-        setAnalyticsData(await res.json());
+        const json = await res.json();
+        setAnalyticsData(json.data || json);
       }
     } catch {
       // Fallback
@@ -712,7 +725,7 @@ export default function ExaminationsPage() {
           {/* Active Sessions Strip */}
           <Card title="Institutional Exam Sessions" subtitle="Select active session to filter examinations">
             <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
-              {sessions.length > 0 ? (
+              {Array.isArray(sessions) && sessions.length > 0 ? (
                 sessions.map((s) => (
                   <div
                     key={s.id}
@@ -931,22 +944,23 @@ export default function ExaminationsPage() {
           ) : (
             <Card title="Marks Recording" subtitle="Select an examination from the list below to begin entering marks">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {schedules.map((s) => (
-                  <div
-                    key={s.id}
-                    onClick={() => loadResults(s)}
-                    style={{
-                      padding: '12px 16px',
-                      borderRadius: 8,
-                      border: '1px solid var(--border-default)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{s.name}</div>
+                {Array.isArray(schedules) && schedules.length > 0 ? (
+                  schedules.map((s) => (
+                    <div
+                      key={s.id}
+                      onClick={() => loadResults(s)}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: '1px solid var(--border-default)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{s.name}</div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         {s.subject?.name} • {new Date(s.examDate).toLocaleDateString()} • {s.startTime} – {s.endTime}
                       </div>
@@ -955,7 +969,12 @@ export default function ExaminationsPage() {
                       Open Grade Sheet
                     </Button>
                   </div>
-                ))}
+                ))
+              ) : (
+                <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                  No examination schedules recorded.
+                </div>
+              )}
               </div>
             </Card>
           )}
@@ -1246,7 +1265,8 @@ export default function ExaminationsPage() {
             }
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {gradeScales.map((scale) => (
+              {Array.isArray(gradeScales) && gradeScales.length > 0 ? (
+                gradeScales.map((scale) => (
                 <div
                   key={scale.id}
                   style={{
@@ -1284,7 +1304,12 @@ export default function ExaminationsPage() {
                     </tbody>
                   </table>
                 </div>
-              ))}
+              ))
+              ) : (
+                <div style={{ padding: 16, color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                  No grading scales registered.
+                </div>
+              )}
             </div>
           </Card>
 
@@ -1357,13 +1382,13 @@ export default function ExaminationsPage() {
               label="Academic Year"
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              options={academicYears.map((y) => ({ value: y.id, label: y.name }))}
+              options={(Array.isArray(academicYears) ? academicYears : []).map((y) => ({ value: y.id, label: y.name }))}
             />
             <Select
               label="Course / Class Subject"
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              options={subjects.map((s) => ({ value: s.id, label: s.name }))}
+              options={(Array.isArray(subjects) ? subjects : []).map((s) => ({ value: s.id, label: s.name }))}
             />
           </div>
 
@@ -1435,13 +1460,13 @@ export default function ExaminationsPage() {
               label="Exam Type"
               value={sessionTypeId}
               onChange={(e) => setSessionTypeId(e.target.value)}
-              options={examTypes.map((t) => ({ value: t.id, label: t.name }))}
+              options={(Array.isArray(examTypes) ? examTypes : []).map((t) => ({ value: t.id, label: t.name }))}
             />
             <Select
               label="Academic Year"
               value={selectedYear}
               onChange={(e) => setSelectedYear(e.target.value)}
-              options={academicYears.map((y) => ({ value: y.id, label: y.name }))}
+              options={(Array.isArray(academicYears) ? academicYears : []).map((y) => ({ value: y.id, label: y.name }))}
             />
           </div>
 
