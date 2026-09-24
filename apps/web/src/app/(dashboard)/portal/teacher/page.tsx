@@ -724,9 +724,9 @@ export default function TeacherPortalPage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               {selectedTimetableDay.charAt(0) + selectedTimetableDay.slice(1).toLowerCase()} Timetable
             </h3>
-            {timetable && timetable.weeklyEntries[selectedTimetableDay]?.length > 0 ? (
+            {timetable?.weeklyEntries && (timetable.weeklyEntries[selectedTimetableDay] || []).length > 0 ? (
               <div className="space-y-3">
-                {timetable.weeklyEntries[selectedTimetableDay].map((slot, idx) => (
+                {(timetable.weeklyEntries[selectedTimetableDay] || []).map((slot, idx) => (
                   <div key={idx} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800/40 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <span className="w-16 font-mono text-xs font-bold text-gray-500">Period {slot.periodNumber}</span>

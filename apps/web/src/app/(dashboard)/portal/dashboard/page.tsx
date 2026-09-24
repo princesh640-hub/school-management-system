@@ -105,15 +105,33 @@ export default function DashboardOverviewPage() {
     }
   };
 
-  const roleTabs = [
-    { id: 'principal', label: '👑 Principal / Admin', icon: '🏛️' },
-    { id: 'teacher', label: '👩‍🏫 Faculty / Teacher', icon: '📖' },
-    { id: 'accountant', label: '💳 Accountant / Bursar', icon: '💰' },
-    { id: 'student', label: '🎒 Student & Parent', icon: '👨‍🎓' },
-  ];
+  const userRoles = React.useMemo(() => user?.roles || [], [user]);
+  const isSuperAdmin = React.useMemo(() => userRoles.includes('SUPER_ADMIN') || userRoles.includes('ADMIN'), [userRoles]);
+
+  const availableRoleTabs = React.useMemo(() => {
+    if (isSuperAdmin || userRoles.length === 0) {
+      return [
+        { id: 'principal', label: '👑 Principal / Admin', icon: '🏛️' },
+        { id: 'teacher', label: '👩‍🏫 Faculty / Teacher', icon: '📖' },
+        { id: 'accountant', label: '💳 Accountant / Bursar', icon: '💰' },
+        { id: 'student', label: '🎒 Student & Parent', icon: '👨‍🎓' },
+      ];
+    }
+    const tabs: { id: string; label: string; icon: string }[] = [];
+    if (userRoles.includes('TEACHER')) {
+      tabs.push({ id: 'teacher', label: '👩‍🏫 Faculty / Teacher', icon: '📖' });
+    }
+    if (userRoles.includes('ACCOUNTANT')) {
+      tabs.push({ id: 'accountant', label: '💳 Accountant / Bursar', icon: '💰' });
+    }
+    if (userRoles.includes('STUDENT') || userRoles.includes('PARENT')) {
+      tabs.push({ id: 'student', label: '🎒 Student & Parent', icon: '👨‍🎓' });
+    }
+    return tabs.length > 0 ? tabs : [{ id: 'student', label: '🎒 Student & Parent', icon: '👨‍🎓' }];
+  }, [userRoles, isSuperAdmin]);
 
   return (
-    <div>
+    <div className="tab-content-enter">
       {/* Top Banner & Welcome */}
       <div
         style={{
@@ -134,10 +152,12 @@ export default function DashboardOverviewPage() {
           </p>
         </div>
 
-        {/* Role View Switcher */}
-        <div style={{ backgroundColor: '#ffffff', padding: 4, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)' }}>
-          <Tabs tabs={roleTabs} activeTab={activeRoleView} onChange={setActiveRoleView} />
-        </div>
+        {/* Role View Switcher - Only shown when user has permission for multiple views */}
+        {availableRoleTabs.length > 1 && (
+          <div style={{ backgroundColor: '#ffffff', padding: 4, borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-default)' }}>
+            <Tabs tabs={availableRoleTabs} activeTab={activeRoleView} onChange={setActiveRoleView} />
+          </div>
+        )}
       </div>
 
       {/* Attention Alerts Banner if any */}
@@ -197,60 +217,64 @@ export default function DashboardOverviewPage() {
               </>
             ) : (
               <>
-                <Card padding="md">
+                <Card padding="md" className="portal-card-interactive">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Enrolled Students</span>
                     <span style={{ fontSize: '1.5rem' }}>🎒</span>
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-                    {analyticsKpis?.totalStudents || 450}
+                    {analyticsKpis?.totalStudents ?? 0}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Badge variant="success" size="sm">{analyticsKpis?.activeStudents || 450} Active</Badge>
+                    <Badge variant="success" size="sm">{analyticsKpis?.activeStudents ?? 0} Active</Badge>
                     <span style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Current Session</span>
                   </div>
                 </Card>
 
-                <Card padding="md">
+                <Card padding="md" className="portal-card-interactive">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Attendance Rate</span>
                     <span style={{ fontSize: '1.5rem' }}>📅</span>
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--status-success)', marginBottom: 4 }}>
-                    {attendanceSummary?.attendanceRate !== undefined ? `${attendanceSummary.attendanceRate}%` : '98.5%'}
+                    {attendanceSummary?.attendanceRate !== undefined ? `${attendanceSummary.attendanceRate}%` : '—'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Badge variant="info" size="sm">Healthy</Badge>
+                    <Badge variant={attendanceSummary?.attendanceRate ? 'info' : 'neutral'} size="sm">
+                      {attendanceSummary?.attendanceRate ? 'Recorded' : 'No Data'}
+                    </Badge>
                     <span style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Downtown Campus</span>
                   </div>
                 </Card>
 
-                <Card padding="md" style={{ cursor: 'pointer' }} onClick={() => openDrillDown('OUTSTANDING_FEES', 'Overdue Accounts Receivable')}>
+                <Card padding="md" className="portal-card-interactive" style={{ cursor: 'pointer' }} onClick={() => openDrillDown('OUTSTANDING_FEES', 'Overdue Accounts Receivable')}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Fee Collection</span>
                     <span style={{ fontSize: '1.5rem' }}>💳</span>
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--brand-primary)', marginBottom: 4 }}>
-                    {feeSummary?.collectionRate !== undefined ? `${feeSummary.collectionRate}%` : '100%'}
+                    {feeSummary?.collectionRate !== undefined ? `${feeSummary.collectionRate}%` : '—'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Badge variant="success" size="sm">On Target</Badge>
+                    <Badge variant={feeSummary?.collectionRate ? 'success' : 'neutral'} size="sm">
+                      {feeSummary?.collectionRate ? 'Active' : 'No Invoices'}
+                    </Badge>
                     <span style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>
-                      Total ${feeSummary?.totalCollected?.toLocaleString() || '1,200'}
+                      Total ${feeSummary?.totalCollected !== undefined ? Number(feeSummary.totalCollected).toLocaleString() : '0'}
                     </span>
                   </div>
                 </Card>
 
-                <Card padding="md">
+                <Card padding="md" className="portal-card-interactive">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Faculty & Staff</span>
                     <span style={{ fontSize: '1.5rem' }}>👩‍🏫</span>
                   </div>
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-                    {analyticsKpis?.totalEmployees || 38}
+                    {analyticsKpis?.totalEmployees ?? 0}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Badge variant="neutral" size="sm">100% Staffed</Badge>
+                    <Badge variant="neutral" size="sm">Registered</Badge>
                     <span style={{ fontSize: '0.825rem', color: 'var(--text-muted)' }}>Active Instructors</span>
                   </div>
                 </Card>
@@ -456,24 +480,24 @@ export default function DashboardOverviewPage() {
       {activeRoleView === 'accountant' && (
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 24 }}>
-            <Card padding="md">
+            <Card padding="md" className="portal-card-interactive">
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>TOTAL INVOICED</div>
               <div style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0' }}>
-                ${feeSummary?.totalInvoiced?.toLocaleString() || '1,200.00'}
+                ${feeSummary?.totalInvoiced !== undefined ? Number(feeSummary.totalInvoiced).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}
               </div>
               <Badge variant="info" size="sm">AY 2026–2027</Badge>
             </Card>
-            <Card padding="md">
+            <Card padding="md" className="portal-card-interactive">
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>TOTAL COLLECTED</div>
               <div style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--status-success)', margin: '4px 0' }}>
-                ${feeSummary?.totalCollected?.toLocaleString() || '1,200.00'}
+                ${feeSummary?.totalCollected !== undefined ? Number(feeSummary.totalCollected).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}
               </div>
-              <Badge variant="success" size="sm">{feeSummary?.collectionRate || 100}% Collection</Badge>
+              <Badge variant="success" size="sm">{feeSummary?.collectionRate || 0}% Collection</Badge>
             </Card>
-            <Card padding="md">
+            <Card padding="md" className="portal-card-interactive">
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)' }}>OUTSTANDING BALANCE</div>
               <div style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--status-danger)', margin: '4px 0' }}>
-                ${feeSummary?.outstandingBalance?.toLocaleString() || '0.00'}
+                ${feeSummary?.outstandingBalance !== undefined ? Number(feeSummary.outstandingBalance).toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}
               </div>
               <Badge variant="neutral" size="sm">Current term</Badge>
             </Card>
@@ -503,19 +527,25 @@ export default function DashboardOverviewPage() {
       {/* VIEW 4: STUDENT & PARENT VIEW */}
       {activeRoleView === 'student' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-          <Card title="Academic Profile & Attendance" subtitle="John Doe (Admission # 2026-0001)">
+          <Card title="Academic Profile & Attendance" subtitle={user ? `${user.firstName} ${user.lastName}` : 'Enrolled Student'}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: 12, borderBottom: '1px solid var(--border-default)', fontSize: '0.925rem' }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Class & Section</span>
-                <strong>Grade 10 — Section A</strong>
+                <span style={{ color: 'var(--text-secondary)' }}>Student Name</span>
+                <strong>{user ? `${user.firstName} ${user.lastName}` : 'Student Profile'}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: 12, borderBottom: '1px solid var(--border-default)', fontSize: '0.925rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Overall Attendance</span>
-                <Badge variant="success">98.5% (PRESENT)</Badge>
+                <Badge variant={attendanceSummary?.attendanceRate ? 'success' : 'neutral'}>
+                  {attendanceSummary?.attendanceRate !== undefined ? `${attendanceSummary.attendanceRate}%` : 'Pending sync'}
+                </Badge>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: 12, fontSize: '0.925rem' }}>
                 <span style={{ color: 'var(--text-secondary)' }}>Fee Status</span>
-                <Badge variant="success">PAID ($1,200.00)</Badge>
+                <Badge variant={feeSummary?.outstandingBalance === 0 ? 'success' : 'warning'}>
+                  {feeSummary?.outstandingBalance !== undefined
+                    ? feeSummary.outstandingBalance === 0 ? 'Fully Cleared' : `Due: $${Number(feeSummary.outstandingBalance).toFixed(2)}`
+                    : 'Up to Date'}
+                </Badge>
               </div>
             </div>
           </Card>

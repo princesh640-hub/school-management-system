@@ -14,11 +14,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState('SchoolDev@2026!');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
+
+  // Proactively ping health endpoint to wake up Render container immediately upon opening login page
+  React.useEffect(() => {
+    fetch(`${API_URL}/health`, { method: 'GET' }).catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    setLoadingStatus('Authenticating credentials...');
+
+    const slowTimer = setTimeout(() => {
+      setLoadingStatus('Connecting to cloud database... (waking up server)');
+    }, 2000);
 
     try {
       const res = await fetch(`${API_URL}/auth/login`, {
@@ -28,6 +39,7 @@ export default function LoginPage() {
         credentials: 'include',
       });
 
+      clearTimeout(slowTimer);
       const json = await res.json();
 
       if (!res.ok) {
@@ -50,7 +62,8 @@ export default function LoginPage() {
         throw new Error('Authentication token not received from server');
       }
     } catch {
-      // If backend API server is offline, activate Evaluation Session so user can explore all portals
+      clearTimeout(slowTimer);
+      // Fallback evaluation session if server timed out during cold start
       const role = email.includes('teacher') ? 'TEACHER' : email.includes('accountant') ? 'ACCOUNTANT' : email.includes('student') ? 'STUDENT' : 'SUPER_ADMIN';
       const roleName = email.includes('teacher') ? 'Faculty Teacher' : email.includes('accountant') ? 'Finance Officer' : email.includes('student') ? 'Student' : 'Super Admin';
 
@@ -69,6 +82,7 @@ export default function LoginPage() {
       router.push('/portal/dashboard');
     } finally {
       setIsLoading(false);
+      setLoadingStatus(null);
     }
   };
 
@@ -155,6 +169,13 @@ export default function LoginPage() {
           >
             Sign In to Portal
           </Button>
+
+          {loadingStatus && (
+            <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--brand-primary)', marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span className="pulse-indicator" style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#0284c7' }} />
+              {loadingStatus}
+            </div>
+          )}
         </form>
 
         {/* Demo Fast Login Presets */}

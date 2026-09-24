@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const json = await res.json();
         const data = json.data || json;
-        setUser({
+        const profile: UserProfile = {
           id: data.id,
           email: data.email,
           firstName: data.firstName || '',
@@ -50,8 +50,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           activeCampusId: data.activeCampusId || data.campusId || (data.campus ? data.campus.id : undefined),
           roles: data.roles || [],
           permissions: data.permissions || [],
-        });
-      } else {
+        };
+        setUser(profile);
+        sessionStorage.setItem('auth_user', JSON.stringify(profile));
+      } else if (res.status === 401) {
         if (!sessionStorage.getItem('demo_mode')) {
           sessionStorage.removeItem('access_token');
           sessionStorage.removeItem('auth_user');
@@ -59,11 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch {
-      if (!sessionStorage.getItem('demo_mode')) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('auth_user');
-        setUser(null);
-      }
+      // Keep existing cached profile active during network glitches
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +72,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cachedUser = typeof window !== 'undefined' ? sessionStorage.getItem('auth_user') : null;
     if (cachedUser) {
       try {
-        setUser(JSON.parse(cachedUser));
+        const parsed = JSON.parse(cachedUser);
+        setUser(parsed);
+        setIsLoading(false); // Instantly unblock page rendering
       } catch {}
     }
     if (token) {

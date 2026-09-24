@@ -1,69 +1,84 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from './AuthContext';
 
 interface NavLinkItem {
   label: string;
   href: string;
   icon: string;
   badge?: string;
+  allowedRoles?: string[];
 }
 
 interface NavGroup {
   title: string;
   items: NavLinkItem[];
+  allowedRoles?: string[];
 }
 
 const navGroups: NavGroup[] = [
   {
     title: 'Overview',
     items: [
-      { label: 'Dashboard', href: '/portal/dashboard', icon: '📊' },
-      { label: 'Reports & Analytics', href: '/portal/reports', icon: '📈' },
+      {
+        label: 'Dashboard',
+        href: '/portal/dashboard',
+        icon: '📊',
+        allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'],
+      },
+      {
+        label: 'Reports & Analytics',
+        href: '/portal/reports',
+        icon: '📈',
+        allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'ACCOUNTANT'],
+      },
     ],
   },
   {
     title: 'Academics & Faculty',
     items: [
-      { label: 'Admissions Hub', href: '/portal/admissions', icon: '📋' },
-      { label: 'Academic Structure', href: '/portal/academics', icon: '🏫' },
-      { label: 'Student Directory', href: '/portal/students', icon: '🎒' },
-      { label: 'Student Portal', href: '/portal/student', icon: '🧑‍🎓' },
-      { label: 'Faculty Directory', href: '/portal/teachers', icon: '👩‍🏫' },
-      { label: 'Teacher Portal', href: '/portal/teacher', icon: '👨‍🏫' },
-      { label: 'Daily Attendance', href: '/portal/attendance', icon: '📅' },
-      { label: 'Exams & Results', href: '/portal/examinations', icon: '📝' },
-      { label: 'Class Timetable', href: '/portal/timetable', icon: '⏱️', badge: 'Future' },
+      { label: 'Admissions Hub', href: '/portal/admissions', icon: '📋', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
+      { label: 'Academic Structure', href: '/portal/academics', icon: '🏫', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
+      { label: 'Student Directory', href: '/portal/students', icon: '🎒', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+      { label: 'Student Portal', href: '/portal/student', icon: '🧑‍🎓', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'STUDENT'] },
+      { label: 'Faculty Directory', href: '/portal/teachers', icon: '👩‍🏫', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
+      { label: 'Teacher Portal', href: '/portal/teacher', icon: '👨‍🏫', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+      { label: 'Daily Attendance', href: '/portal/attendance', icon: '📅', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'PARENT'] },
+      { label: 'Exams & Results', href: '/portal/examinations', icon: '📝', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT', 'PARENT'] },
+      { label: 'Class Timetable', href: '/portal/timetable', icon: '⏱️', badge: 'Active', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT', 'PARENT'] },
     ],
   },
   {
     title: 'Administration & HR',
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT', 'TEACHER'],
     items: [
-      { label: 'Staff & HR', href: '/portal/hr', icon: '👥' },
-      { label: 'Staff Attendance', href: '/portal/hr/attendance', icon: '⏱️' },
-      { label: 'Leave Management', href: '/portal/hr/leave', icon: '🏖️' },
-      { label: 'Guardians & Parents', href: '/portal/guardians', icon: '👨‍👩‍👧' },
-      { label: 'Parent Portal', href: '/portal/parent', icon: '👨‍👩‍👦' },
-      { label: 'Document Center', href: '/portal/documents', icon: '📁' },
-      { label: 'Certificates & Printing', href: '/portal/certificates', icon: '🎓' },
+      { label: 'Staff & HR', href: '/portal/hr', icon: '👥', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT'] },
+      { label: 'Staff Attendance', href: '/portal/hr/attendance', icon: '⏱️', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+      { label: 'Leave Management', href: '/portal/hr/leave', icon: '🏖️', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+      { label: 'Guardians & Parents', href: '/portal/guardians', icon: '👨‍👩‍👧', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
+      { label: 'Parent Portal', href: '/portal/parent', icon: '👨‍👩‍👦', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'PARENT'] },
+      { label: 'Document Center', href: '/portal/documents', icon: '📁', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER'] },
+      { label: 'Certificates & Printing', href: '/portal/certificates', icon: '🎓', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
     ],
   },
   {
     title: 'Finance & Operations',
+    allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT', 'PARENT'],
     items: [
-      { label: 'Fees & Invoicing', href: '/portal/fees', icon: '💳' },
-      { label: 'Campus Operations', href: '/portal/operations', icon: '🏢', badge: 'Future' },
+      { label: 'Fees & Invoicing', href: '/portal/fees', icon: '💳', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT', 'PARENT'] },
+      { label: 'Campus Operations', href: '/portal/operations', icon: '🏢', badge: 'Future', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'ACCOUNTANT'] },
     ],
   },
   {
     title: 'System & Security',
     items: [
-      { label: 'Communication Hub', href: '/portal/communication', icon: '📢' },
-      { label: 'Notifications', href: '/portal/notifications', icon: '🔔' },
-      { label: 'Integrations & External', href: '/portal/integrations', icon: '🔌' },
-      { label: 'Settings & Audit', href: '/portal/settings', icon: '⚙️' },
+      { label: 'Communication Hub', href: '/portal/communication', icon: '📢', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'PARENT'] },
+      { label: 'Notifications', href: '/portal/notifications', icon: '🔔', allowedRoles: ['SUPER_ADMIN', 'ADMIN', 'TEACHER', 'STUDENT', 'PARENT', 'ACCOUNTANT'] },
+      { label: 'Integrations & External', href: '/portal/integrations', icon: '🔌', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
+      { label: 'Settings & Audit', href: '/portal/settings', icon: '⚙️', allowedRoles: ['SUPER_ADMIN', 'ADMIN'] },
     ],
   },
 ];
@@ -75,6 +90,39 @@ export interface SidebarProps {
 
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  const userRoles = useMemo(() => {
+    if (!user || !user.roles || user.roles.length === 0) {
+      return ['SUPER_ADMIN'];
+    }
+    return user.roles;
+  }, [user]);
+
+  const isSuperAdmin = useMemo(() => {
+    return userRoles.includes('SUPER_ADMIN') || userRoles.includes('ADMIN');
+  }, [userRoles]);
+
+  const visibleGroups = useMemo(() => {
+    return navGroups
+      .map((group) => {
+        // Check group level role restriction
+        if (group.allowedRoles && !isSuperAdmin) {
+          const hasGroupAccess = group.allowedRoles.some((r) => userRoles.includes(r));
+          if (!hasGroupAccess) return null;
+        }
+
+        // Filter individual items
+        const visibleItems = group.items.filter((item) => {
+          if (isSuperAdmin || !item.allowedRoles) return true;
+          return item.allowedRoles.some((r) => userRoles.includes(r));
+        });
+
+        if (visibleItems.length === 0) return null;
+        return { ...group, items: visibleItems };
+      })
+      .filter((g): g is NavGroup => g !== null);
+  }, [userRoles, isSuperAdmin]);
 
   return (
     <>
@@ -155,7 +203,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             overflowY: 'auto',
           }}
         >
-          {navGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.title}>
               <div
                 style={{

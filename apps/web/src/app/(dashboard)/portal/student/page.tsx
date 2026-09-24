@@ -430,10 +430,10 @@ export default function StudentPortalPage() {
             <Card className="p-4 border-l-4 border-rose-500">
               <span className="text-xs font-medium text-gray-500 uppercase">Outstanding Balance</span>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                ${overview?.feeBalanceOutstanding.toFixed(2) || '0.00'}
+                ${Number(overview?.feeBalanceOutstanding ?? 0).toFixed(2)}
               </p>
               <span className="text-xs text-rose-600 dark:text-rose-400 mt-1 block">
-                {overview?.feeBalanceOutstanding === 0 ? 'Fully Cleared' : 'Pending Payment'}
+                {Number(overview?.feeBalanceOutstanding ?? 0) === 0 ? 'Fully Cleared' : 'Pending Payment'}
               </span>
             </Card>
           </div>
@@ -616,9 +616,9 @@ export default function StudentPortalPage() {
               <Badge variant="success">PUBLISHED TIMETABLE</Badge>
             </div>
 
-            {timetable && timetable.weeklyEntries[selectedTimetableDay]?.length > 0 ? (
+            {timetable?.weeklyEntries && (timetable.weeklyEntries[selectedTimetableDay] || []).length > 0 ? (
               <div className="space-y-3">
-                {timetable.weeklyEntries[selectedTimetableDay].map((entry, idx) => (
+                {(timetable.weeklyEntries[selectedTimetableDay] || []).map((entry, idx) => (
                   <div
                     key={idx}
                     className={`p-4 rounded-lg border flex flex-col md:flex-row md:items-center md:justify-between gap-3 ${

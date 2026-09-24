@@ -273,3 +273,82 @@ button, a, input, select, textarea {
   }
 }
 
+/* ==============================================================================
+   Smooth Micro-Interactions, Transitions & Animations
+   ============================================================================== */
+
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tabEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes modalBackdropFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply smooth entry animation to main content */
+main {
+  animation: pageEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Tab content smooth entry */
+.tab-content-enter {
+  animation: tabEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Interactive card hover lift with subtle shadow */
+.portal-card-interactive {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.portal-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Pulsing live badge indicator */
+.pulse-indicator {
+  display: inline-block;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Tactile button feedback */
+button:active:not(:disabled),
+a.btn:active {
+  transform: scale(0.985);
+}
+

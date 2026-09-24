@@ -402,10 +402,10 @@ export default function ParentPortalPage() {
                 Attendance Rate (Month)
               </div>
               <div style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--brand-primary)', marginTop: 6 }}>
-                {overview ? `${overview.attendance.monthPercentage}%` : '—'}
+                {overview?.attendance?.monthPercentage !== undefined ? `${overview.attendance.monthPercentage}%` : '—'}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                {overview?.attendance.daysPresent} present of {overview?.attendance.totalDays} sessions
+                {overview?.attendance?.daysPresent ?? 0} present of {overview?.attendance?.totalDays ?? 0} sessions
               </div>
             </Card>
 
@@ -417,14 +417,14 @@ export default function ParentPortalPage() {
                 style={{
                   fontSize: '1.875rem',
                   fontWeight: 700,
-                  color: (overview?.fees.balanceOutstanding || 0) > 0 ? '#dc2626' : '#16a34a',
+                  color: (Number(overview?.fees?.balanceOutstanding ?? 0)) > 0 ? '#dc2626' : '#16a34a',
                   marginTop: 6,
                 }}
               >
-                {overview ? `$${overview.fees.balanceOutstanding.toFixed(2)}` : '—'}
+                {overview?.fees?.balanceOutstanding !== undefined ? `$${Number(overview.fees.balanceOutstanding).toFixed(2)}` : '—'}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
-                {overview?.fees.hasOverdue ? 'Overdue balance pending' : 'All current fees settled'}
+                {overview?.fees?.hasOverdue ? 'Overdue balance pending' : 'All current fees settled'}
               </div>
             </Card>
 
@@ -871,16 +871,16 @@ export default function ParentPortalPage() {
           >
             <Card padding="md">
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Invoiced</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>${fees.totalInvoiced.toFixed(2)}</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>${Number(fees?.totalInvoiced ?? 0).toFixed(2)}</div>
             </Card>
             <Card padding="md">
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Paid to Date</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#16a34a' }}>${fees.totalPaid.toFixed(2)}</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: '#16a34a' }}>${Number(fees?.totalPaid ?? 0).toFixed(2)}</div>
             </Card>
             <Card padding="md">
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Remaining Balance</div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: fees.balanceOutstanding > 0 ? '#dc2626' : '#16a34a' }}>
-                ${fees.balanceOutstanding.toFixed(2)}
+              <div style={{ fontSize: '1.75rem', fontWeight: 700, color: (fees?.balanceOutstanding ?? 0) > 0 ? '#dc2626' : '#16a34a' }}>
+                ${Number(fees?.balanceOutstanding ?? 0).toFixed(2)}
               </div>
             </Card>
           </div>
@@ -905,16 +905,16 @@ export default function ParentPortalPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {fees.invoices.length > 0 ? (
+                  {fees?.invoices && fees.invoices.length > 0 ? (
                     fees.invoices.map((inv) => (
                       <tr key={inv.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
                         <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 600 }}>{inv.invoiceNumber}</td>
                         <td style={{ padding: '10px 14px' }}>{inv.feeStructureName}</td>
                         <td style={{ padding: '10px 14px' }}>{inv.dueDate}</td>
-                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>${inv.amount.toFixed(2)}</td>
-                        <td style={{ padding: '10px 14px', color: '#16a34a' }}>${inv.paidAmount.toFixed(2)}</td>
-                        <td style={{ padding: '10px 14px', fontWeight: 600, color: inv.remainingAmount > 0 ? '#dc2626' : '#16a34a' }}>
-                          ${inv.remainingAmount.toFixed(2)}
+                        <td style={{ padding: '10px 14px', fontWeight: 600 }}>${Number(inv.amount ?? 0).toFixed(2)}</td>
+                        <td style={{ padding: '10px 14px', color: '#16a34a' }}>${Number(inv.paidAmount ?? 0).toFixed(2)}</td>
+                        <td style={{ padding: '10px 14px', fontWeight: 600, color: (inv.remainingAmount ?? 0) > 0 ? '#dc2626' : '#16a34a' }}>
+                          ${Number(inv.remainingAmount ?? 0).toFixed(2)}
                         </td>
                         <td style={{ padding: '10px 14px' }}>
                           <Badge variant={inv.status === 'PAID' ? 'success' : inv.status === 'OVERDUE' ? 'danger' : 'warning'}>
@@ -961,18 +961,26 @@ export default function ParentPortalPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {fees.receipts.map((rcp) => (
-                      <tr key={rcp.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
-                        <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 600 }}>{rcp.receiptNumber}</td>
-                        <td style={{ padding: '10px 14px', fontFamily: 'monospace' }}>{rcp.invoiceNumber}</td>
-                        <td style={{ padding: '10px 14px' }}>{rcp.paymentDate}</td>
-                        <td style={{ padding: '10px 14px', fontWeight: 600, color: '#16a34a' }}>${rcp.amount.toFixed(2)}</td>
-                        <td style={{ padding: '10px 14px' }}>{rcp.paymentMethod}</td>
-                        <td style={{ padding: '10px 14px' }}>
-                          <Badge variant="success">CONFIRMED</Badge>
+                    {fees?.receipts && fees.receipts.length > 0 ? (
+                      fees.receipts.map((rcp) => (
+                        <tr key={rcp.id} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                          <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 600 }}>{rcp.receiptNumber}</td>
+                          <td style={{ padding: '10px 14px', fontFamily: 'monospace' }}>{rcp.invoiceNumber}</td>
+                          <td style={{ padding: '10px 14px' }}>{rcp.paymentDate}</td>
+                          <td style={{ padding: '10px 14px', fontWeight: 600, color: '#16a34a' }}>${Number(rcp.amount ?? 0).toFixed(2)}</td>
+                          <td style={{ padding: '10px 14px' }}>{rcp.paymentMethod}</td>
+                          <td style={{ padding: '10px 14px' }}>
+                            <Badge variant="success">CONFIRMED</Badge>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                          No payment receipts recorded yet.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
