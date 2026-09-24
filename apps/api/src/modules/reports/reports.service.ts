@@ -48,10 +48,11 @@ export class ReportsService {
             email: true,
             phone: true,
             status: true,
+            gender: true,
+            campus: {
+              select: { id: true, name: true },
+            },
           },
-        },
-        campus: {
-          select: { id: true, name: true },
         },
         enrollments: {
           where: { status: 'ACTIVE' },
@@ -76,8 +77,8 @@ export class ReportsService {
         name: `${s.user.firstName} ${s.user.lastName}`,
         email: s.user.email,
         phone: s.user.phone,
-        gender: s.gender,
-        campusName: s.campus?.name,
+        gender: s.user.gender,
+        campusName: s.user.campus?.name,
         className: s.enrollments[0]?.section?.class?.name ?? 'Unassigned',
         sectionName: s.enrollments[0]?.section?.name ?? 'Unassigned',
         rollNumber: s.enrollments[0]?.rollNumber ?? 'N/A',
